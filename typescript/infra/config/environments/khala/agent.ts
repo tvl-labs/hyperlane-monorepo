@@ -35,30 +35,38 @@ export const hyperlane: AgentConfig<MainnetChains> = {
       interval: 5,
       reorgPeriod: 1,
     },
+    // chainOverrides: {
+    //   celo: {
+    //     reorgPeriod: 0,
+    //   },
+    //   ethereum: {
+    //     reorgPeriod: 20,
+    //   },
+    //   bsc: {
+    //     reorgPeriod: 15,
+    //   },
+    //   optimism: {
+    //     reorgPeriod: 0,
+    //   },
+    //   arbitrum: {
+    //     reorgPeriod: 0,
+    //   },
+    //   avalanche: {
+    //     reorgPeriod: 3,
+    //   },
+    //   polygon: {
+    //     reorgPeriod: 256,
+    //   },
+    //   moonbeam: {
+    //     reorgPeriod: 0,
+    //   },
+    // },
     chainOverrides: {
-      celo: {
+      khala: {
         reorgPeriod: 0,
       },
-      ethereum: {
+      goerli: {
         reorgPeriod: 20,
-      },
-      bsc: {
-        reorgPeriod: 15,
-      },
-      optimism: {
-        reorgPeriod: 0,
-      },
-      arbitrum: {
-        reorgPeriod: 0,
-      },
-      avalanche: {
-        reorgPeriod: 3,
-      },
-      polygon: {
-        reorgPeriod: 256,
-      },
-      moonbeam: {
-        reorgPeriod: 0,
       },
     },
   },

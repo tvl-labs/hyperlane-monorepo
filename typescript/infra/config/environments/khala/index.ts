@@ -8,7 +8,7 @@ import { agents } from './agent';
 import {
   MainnetChains,
   environment as environmentName,
-  mainnetConfigs,
+  khalaConfigs,
 } from './chains';
 import { core } from './core';
 import { keyFunderConfig } from './funding';
@@ -17,14 +17,14 @@ import { infrastructure } from './infrastructure';
 
 export const environment: CoreEnvironmentConfig<MainnetChains> = {
   environment: environmentName,
-  transactionConfigs: mainnetConfigs,
+  transactionConfigs: khalaConfigs,
   getMultiProvider: (
     context: Contexts = Contexts.Hyperlane,
     role: KEY_ROLE_ENUM = KEY_ROLE_ENUM.Deployer,
     connectionType?: ConnectionType,
   ) =>
     getMultiProviderForRole(
-      mainnetConfigs,
+      khalaConfigs,
       environmentName,
       context,
       role,

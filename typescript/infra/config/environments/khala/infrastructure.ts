@@ -2,7 +2,7 @@ import { InfrastructureConfig } from '../../../src/config';
 
 export const infrastructure: InfrastructureConfig = {
   kubernetes: {
-    clusterName: 'hyperlane-mainnet',
+    clusterName: 'khala-testnet',
   },
   monitoring: {
     namespace: 'monitoring',
@@ -31,11 +31,7 @@ export const infrastructure: InfrastructureConfig = {
       name: 'external-secrets',
       version: '0.5.1',
     },
-    gcpServiceAccountName: 'k8s-external-secrets-mainnet2',
-    accessibleGCPSecretPrefixes: [
-      'hyperlane-mainnet2-',
-      'rc-mainnet2-',
-      'mainnet2-',
-    ],
+    gcpServiceAccountName: 'k8s-external-secrets-khala-testnet',
+    accessibleGCPSecretPrefixes: ['khala-testnet-', 'rc-khala-', 'khala-'],
   },
 };

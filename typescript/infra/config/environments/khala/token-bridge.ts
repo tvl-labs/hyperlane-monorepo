@@ -4,7 +4,7 @@ import {
   Chains,
   CircleBridgeAdapterConfig,
   chainMetadata,
-} from '@hyperlane-xyz/sdk';
+} from '../../../../sdk';
 
 const circleDomainMapping = [
   { hyperlaneDomain: chainMetadata[Chains.goerli].id, circleDomain: 0 },
