@@ -1,9 +1,10 @@
 import { Create2Factory, Create2Factory__factory } from '@hyperlane-xyz/core';
+
 import {
   ChainName,
   HyperlaneDeployer,
   MultiProvider,
-} from '@hyperlane-xyz/sdk';
+} from '../.../../../../sdk';
 
 export const factories = {
   Create2Factory: new Create2Factory__factory(),

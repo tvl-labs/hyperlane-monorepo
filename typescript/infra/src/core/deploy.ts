@@ -5,6 +5,8 @@ import {
   Mailbox,
   ProxyAdmin,
 } from '@hyperlane-xyz/core';
+import { types } from '@hyperlane-xyz/utils';
+
 import {
   ChainMap,
   ChainName,
@@ -15,9 +17,7 @@ import {
   TransparentProxyAddresses,
   chainMetadata,
   objMap,
-} from '@hyperlane-xyz/sdk';
-import { types } from '@hyperlane-xyz/utils';
-
+} from '../.../../../../sdk';
 import { DeployEnvironment, RustChainSetup, RustConfig } from '../config';
 import { ConnectionType } from '../config/agent';
 import { writeJSON } from '../utils/utils';

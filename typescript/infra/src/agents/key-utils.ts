@@ -1,5 +1,4 @@
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 import { AgentConfig } from '../config';
 import { fetchGCPSecret, setGCPSecret } from '../utils/gcloud';

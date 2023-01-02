@@ -1,4 +1,4 @@
-import { ChainMap, CoreConfig } from '@hyperlane-xyz/sdk';
+import { ChainMap, CoreConfig } from '../../.../../../../sdk';
 
 import { TestChains } from './chains';
 

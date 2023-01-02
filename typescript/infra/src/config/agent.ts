@@ -1,6 +1,6 @@
-import { ChainMap, ChainName } from '@hyperlane-xyz/sdk';
 import { types } from '@hyperlane-xyz/utils';
 
+import { ChainMap, ChainName } from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 import {
   AgentAwsKey,

@@ -1,5 +1,4 @@
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 
 import { KEY_ROLE_ENUM } from './roles';

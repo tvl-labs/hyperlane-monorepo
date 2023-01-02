@@ -1,10 +1,11 @@
 import { TestQuerySender, TestQuerySender__factory } from '@hyperlane-xyz/core';
+
 import {
   ChainMap,
   ChainName,
   HyperlaneDeployer,
   MultiProvider,
-} from '@hyperlane-xyz/sdk';
+} from '../.../../../../sdk';
 
 export const factories = {
   TestQuerySender: new TestQuerySender__factory(),

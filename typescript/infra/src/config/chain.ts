@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 
 import { StaticCeloJsonRpcProvider } from '@hyperlane-xyz/celo-ethers-provider';
-import { ChainName, RetryJsonRpcProvider } from '@hyperlane-xyz/sdk';
 
+import { ChainName, RetryJsonRpcProvider } from '../.../../../../sdk';
 import { getSecretRpcEndpoint } from '../agents';
 
 import { ConnectionType } from './agent';

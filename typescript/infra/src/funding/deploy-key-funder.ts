@@ -1,5 +1,4 @@
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { AgentConfig, CoreEnvironmentConfig } from '../config';
 import { KeyFunderConfig } from '../config/funding';
 import { HelmCommand, helmifyValues } from '../utils/helm';

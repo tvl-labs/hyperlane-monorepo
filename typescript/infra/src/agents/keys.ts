@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 import { assertChain, assertContext, assertRole } from '../utils/utils';
 

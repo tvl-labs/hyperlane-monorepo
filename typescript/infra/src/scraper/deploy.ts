@@ -1,5 +1,4 @@
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { AgentConfig } from '../config';
 import { ConnectionType } from '../config/agent';
 import {

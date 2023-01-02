@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 
-import { getTestMultiProvider } from '@hyperlane-xyz/sdk';
-
+import { getTestMultiProvider } from '../../.../../../../sdk';
 import { CoreEnvironmentConfig } from '../../../src/config';
 
 import { agents } from './agent';

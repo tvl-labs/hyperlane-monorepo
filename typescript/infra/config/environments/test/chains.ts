@@ -1,4 +1,5 @@
-import { chainConnectionConfigs } from '@hyperlane-xyz/sdk';
+// import { chainConnectionConfigs } from '@hyperlane-xyz/sdk';
+import { chainConnectionConfigs } from '../../.../../../../sdk';
 
 export const testConfigs = {
   test1: chainConnectionConfigs.test1,

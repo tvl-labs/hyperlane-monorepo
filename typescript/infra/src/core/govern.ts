@@ -1,5 +1,7 @@
 import { prompts } from 'prompts';
 
+import { types, utils } from '@hyperlane-xyz/utils';
+
 import {
   ChainMap,
   ChainName,
@@ -12,9 +14,7 @@ import {
   OwnerViolation,
   ViolationType,
   objMap,
-} from '@hyperlane-xyz/sdk';
-import { types, utils } from '@hyperlane-xyz/utils';
-
+} from '../.../../../../sdk';
 import { canProposeSafeTransactions } from '../utils/safe';
 
 import {

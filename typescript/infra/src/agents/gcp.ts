@@ -1,7 +1,6 @@
 import { Wallet, ethers } from 'ethers';
 
-import { ChainName } from '@hyperlane-xyz/sdk';
-
+import { ChainName } from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 import { fetchGCPSecret, setGCPSecret } from '../utils/gcloud';
 import { execCmd, include } from '../utils/utils';
