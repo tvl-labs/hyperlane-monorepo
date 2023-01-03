@@ -3077,6 +3077,8 @@ __metadata:
     ethereum-waffle: ^3.4.4
     ethers: ^5.6.8
     hardhat: ^2.8.4
+    husky: ^8.0.3
+    husky-run: ^0.0.0
     prettier: ^2.4.1
     prom-client: ^14.0.1
     prompts: ^2.4.2
@@ -10783,7 +10785,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.0":
+"husky-run@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "husky-run@npm:0.0.0"
+  checksum: 92c7202c8ca5f3509a041146b5b0f7feb58ace348ec15a96a8dffdc51fb470cf72498758b88206f409d4628c38ecf975c7e7386628b38eccceff407a185ec694
+  languageName: node
+  linkType: hard
+
+"husky@npm:^8.0.0, husky@npm:^8.0.3":
   version: 8.0.3
   resolution: "husky@npm:8.0.3"
   bin:

@@ -1,1 +1,30 @@
-{}
+{
+  "khala": {
+    "proxyAdmin": "0x198c7715afde57C4aD12F20c4F97219f98Fa5a52",
+    "interchainGasPaymaster": {
+      "kind": "Transparent",
+      "proxy": "0xbd3cA07Bb065a193Ce6d5De8f513adB074ffcBF8",
+      "implementation": "0x91FceB237e68CB2B4aa8399A833c523453564559"
+    },
+    "mailbox": {
+      "kind": "Transparent",
+      "proxy": "0x862f0A3bE8E91953873E8d002A6681A98F01E2bf",
+      "implementation": "0xB63b441055918FcD756De83dA036bdF02f9cAdac"
+    },
+    "multisigIsm": "0xd1Bc55849bAEC2CE78BE4aBe66c56a8Bd05d30ae"
+  },
+  "goerli": {
+    "proxyAdmin": "0xB63b441055918FcD756De83dA036bdF02f9cAdac",
+    "interchainGasPaymaster": {
+      "kind": "Transparent",
+      "proxy": "0x399077e77A7DF0dace273182C3411C3eC7Ce87AD",
+      "implementation": "0x91A1DA5531AD9D9CCE0e76589FADCBA4E30751Ea"
+    },
+    "mailbox": {
+      "kind": "Transparent",
+      "proxy": "0x9d64386193A226243Cb79142cC06F6AaBF24040c",
+      "implementation": "0x6f09E53Bbb19a3e95364f7e837Bffbe3c109A1dA"
+    },
+    "multisigIsm": "0x198c7715afde57C4aD12F20c4F97219f98Fa5a52"
+  }
+}

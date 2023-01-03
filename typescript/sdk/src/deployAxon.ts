@@ -27,7 +27,11 @@ import { ChainName, KhalaChainNames } from './types';
 
 require('dotenv').config();
 
-const provider = new ethers.providers.JsonRpcProvider('https://axon-node.info');
+const provider = new ethers.providers.JsonRpcProvider(
+  'https://www.axon-node.info/',
+);
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 let ismOwnerAddress = ethers.utils.getAddress(
   '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
@@ -91,10 +95,11 @@ async function initEnv<Chain extends KhalaChainNames>(
   // console.log(`coreDeployer: ${JSON.stringify(coreDeployer)}`);
 
   const coreContractsMaps = await coreDeployer.deploy();
-  // console.log(`coreContractsMaps: ${JSON.stringify(coreContractsMaps)}`);
+  console.log(`coreContractsMaps: ${JSON.stringify(coreContractsMaps)}`);
   const core = new HyperlaneCore(coreContractsMaps, multiProvider);
   const config = core.extendWithConnectionClientConfig(
-    getChainToOwnerMap(subsetKhalaConfigs, signer.address),
+    // getChainToOwnerMap(subsetKhalaConfigs, signer.address),
+    getChainToOwnerMap(subsetKhalaConfigs, ismOwnerAddress),
   );
   const deployer = new EnvSubsetDeployer(multiProvider, config, core);
   return { multiProvider, config, deployer };

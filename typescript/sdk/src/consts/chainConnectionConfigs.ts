@@ -6,7 +6,8 @@ import { ChainMap, ChainName, IChainConnection } from '../types';
 import { objMap } from '../utils/objects';
 
 import { chainMetadata } from './chainMetadata';
-import { Chains, TestChains } from './chains';
+// import { Chains, Mainnets, TestChains, Testnets } from './chains';
+import { Chains } from './chains';
 
 function testChainConnection() {
   return {
@@ -18,9 +19,31 @@ function testChainConnection() {
   };
 }
 
+// function khalaChainConnection() {
+//   return {
+//     provider: new ethers.providers.JsonRpcProvider(
+//       'https://axon-node.info:8545',
+//       100012,
+//     ),
+//     confirmations: 1,
+//   };
+// }
+
+// function goerliChainConnection() {
+//   return {
+//     provider: new ethers.providers.JsonRpcProvider(
+//       'https://goerli.infura.io/v3/a331eeeb1b1347a5a208925eda7167f6',
+//       5,
+//     ),
+//     confirmations: 1,
+//   };
+// }
+
 export const chainConnectionConfigs: ChainMap<ChainName, IChainConnection> =
   objMap(chainMetadata, (chainName, metadata) => {
-    if (TestChains.includes(chainName)) return testChainConnection();
+    // if (TestChains.includes(chainName)) return testChainConnection();
+    // if (Testnets.includes("goerli")) return goerliChainConnection();
+    // if (Mainnets.includes("khala")) return khalaChainConnection();
 
     const providerClass =
       chainName === Chains.alfajores || chainName === Chains.celo

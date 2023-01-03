@@ -1,6 +1,43 @@
 {
   "environment": "khala",
-  "chains": {},
+  "chains": {
+    "khala": {
+      "name": "khala",
+      "domain": "100012",
+      "addresses": {
+        "mailbox": "0x862f0A3bE8E91953873E8d002A6681A98F01E2bf",
+        "interchainGasPaymaster": "0xbd3cA07Bb065a193Ce6d5De8f513adB074ffcBF8",
+        "multisigIsm": "0xd1Bc55849bAEC2CE78BE4aBe66c56a8Bd05d30ae"
+      },
+      "rpcStyle": "ethereum",
+      "finalityBlocks": "0",
+      "connection": {
+        "type": "http",
+        "url": ""
+      },
+      "index": {
+        "from": "1953975"
+      }
+    },
+    "goerli": {
+      "name": "goerli",
+      "domain": "5",
+      "addresses": {
+        "mailbox": "0x9d64386193A226243Cb79142cC06F6AaBF24040c",
+        "interchainGasPaymaster": "0x399077e77A7DF0dace273182C3411C3eC7Ce87AD",
+        "multisigIsm": "0x198c7715afde57C4aD12F20c4F97219f98Fa5a52"
+      },
+      "rpcStyle": "ethereum",
+      "finalityBlocks": "2",
+      "connection": {
+        "type": "http",
+        "url": ""
+      },
+      "index": {
+        "from": "8251958"
+      }
+    }
+  },
   "signers": {},
   "db": "db_path",
   "tracing": {

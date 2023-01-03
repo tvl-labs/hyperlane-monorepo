@@ -31,10 +31,14 @@ export class ChainConnection {
     return `${this.blockExplorerUrl}/tx/${response.hash}`;
   }
 
+  // async getAddressUrl(address?: string): Promise<string> {
+  //   return `${this.blockExplorerUrl}/address/${
+  //     address ?? (await this.signer!.getAddress())
+  //   }`;
+  // }
+
   async getAddressUrl(address?: string): Promise<string> {
-    return `${this.blockExplorerUrl}/address/${
-      address ?? (await this.signer!.getAddress())
-    }`;
+    return `${this.blockExplorerUrl}/address/`;
   }
 
   getApiUrl(): string {
