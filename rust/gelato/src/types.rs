@@ -38,6 +38,7 @@ pub enum Chain {
     Moonbeam = 1284,
 
     Zksync2Testnet = 280,
+    Khala = 100012,
 }
 
 impl fmt::Display for Chain {

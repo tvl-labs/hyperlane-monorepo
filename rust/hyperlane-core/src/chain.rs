@@ -100,6 +100,8 @@ pub enum KnownHyperlaneDomain {
 
     Zksync2Testnet = 280,
 
+    Khala = 100012,
+
     // -- Local test chains --
     /// Test1 local chain
     Test1 = 13371,
@@ -186,6 +188,8 @@ impl KnownHyperlaneDomain {
 
             Zksync2Testnet => Testnet,
 
+            Khala => Mainnet,
+
             Test1 => LocalTestChain,
             Test2 => LocalTestChain,
             Test3 => LocalTestChain,
@@ -226,6 +230,7 @@ impl KnownHyperlaneDomain {
             Test1 => Evm,
             Test2 => Evm,
             Test3 => Evm,
+            Khala => Evm,
         }
     }
 }

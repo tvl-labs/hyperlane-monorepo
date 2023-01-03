@@ -57,6 +57,11 @@ export function getKhalaMultiProvider<Chain extends KhalaChainNames>(
     confirmations: config.confirmations,
     overrides: config.overrides,
   }));
+  console.log(
+    `returning mulitprovider with ${
+      Object.keys(chainProviders).length
+    } chains, ${Object.keys(chainProviders).join(', ')}`,
+  );
   return new MultiProvider(chainProviders);
 }
 

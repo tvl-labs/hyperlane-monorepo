@@ -20,7 +20,7 @@ import {
   EnvSubsetDeployer,
   KhalaSubsetChains, // SubsetChains,
   // fullEnvConfigs,
-  fullEnvTestConfigs,
+  // fullEnvTestConfigs,
   subsetKhalaConfigs, // subsetTestConfigs,
 } from './test/envSubsetDeployer/app';
 import { ChainName, KhalaChainNames } from './types';
@@ -51,7 +51,7 @@ const configs = {
 
 // import { ChainMap } from '.';
 async function main() {
-  const env = await initEnv(fullEnvTestConfigs);
+  const env = await initEnv(subsetKhalaConfigs);
   let multiProvider: MultiProvider<KhalaSubsetChains>;
   let config: ChainMap<KhalaSubsetChains, RouterConfig>;
   let deployer: EnvSubsetDeployer<KhalaSubsetChains>;
@@ -84,9 +84,14 @@ async function initEnv<Chain extends KhalaChainNames>(
   );
 
   const multiProvider = getKhalaMultiProvider(signer, environmentConfig);
+  console.log(`multiProvider: ${JSON.stringify(multiProvider)}`);
 
   const coreDeployer = new HyperlaneCoreDeployer(multiProvider, configs);
+
+  // console.log(`coreDeployer: ${JSON.stringify(coreDeployer)}`);
+
   const coreContractsMaps = await coreDeployer.deploy();
+  // console.log(`coreContractsMaps: ${JSON.stringify(coreContractsMaps)}`);
   const core = new HyperlaneCore(coreContractsMaps, multiProvider);
   const config = core.extendWithConnectionClientConfig(
     getChainToOwnerMap(subsetKhalaConfigs, signer.address),
