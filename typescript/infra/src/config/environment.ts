@@ -4,8 +4,7 @@ import {
   CoreConfig,
   EnvironmentConfig,
   MultiProvider,
-} from '@hyperlane-xyz/sdk';
-
+} from '../.../../../../sdk';
 import { Contexts } from '../../config/contexts';
 import { environments } from '../../config/environments';
 import { KEY_ROLE_ENUM } from '../agents/roles';

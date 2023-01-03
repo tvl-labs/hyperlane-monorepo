@@ -88,6 +88,7 @@ export class AgentGCPKey extends CloudAgentKey {
   }
 
   async fetch() {
+    console.log('Fetching secret from Google Secret Manager');
     const secret: SecretManagerPersistedKeys = await fetchGCPSecret(
       this.identifier,
     );
@@ -115,6 +116,9 @@ export class AgentGCPKey extends CloudAgentKey {
     provider?: ethers.providers.Provider,
   ): Promise<ethers.Signer> {
     if (!this.remoteKey.fetched) {
+      console.log(`Creating key ${this.identifier}`);
+      // Hack to create the key in hyperlane format
+      // await this._create(true);
       await this.fetch();
     }
     return new Wallet(this.privateKey, provider);

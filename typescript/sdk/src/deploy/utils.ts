@@ -7,7 +7,7 @@ import {
   testChainConnectionConfigs,
 } from '../consts/chainConnectionConfigs';
 import { MultiProvider } from '../providers/MultiProvider';
-import { ChainMap, ChainName, TestChainNames } from '../types';
+import { ChainMap, ChainName, KhalaChainNames, TestChainNames } from '../types';
 import { objMap } from '../utils/objects';
 
 import { EnvironmentConfig } from './types';
@@ -36,7 +36,7 @@ export function getTestMultiProvider<Chain extends TestChainNames>(
   return new MultiProvider(chainProviders);
 }
 
-export function getKhalaMultiProvider<Chain extends TestChainNames>(
+export function getKhalaMultiProvider<Chain extends KhalaChainNames>(
   signerOrProvider: Signer | providers.Provider,
   configs: EnvironmentConfig<Chain> = chainConnectionConfigs,
 ): MultiProvider<Chain> {

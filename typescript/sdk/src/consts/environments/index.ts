@@ -3,13 +3,21 @@ import { types } from '@hyperlane-xyz/utils';
 import { LooseChainMap } from '../../types';
 import { objMap } from '../../utils/objects';
 
+import khala from './khala.json';
 import mainnet2 from './mainnet2.json';
 import mainnet from './mainnet.json';
 import test from './test.json';
 import testnet2 from './testnet2.json';
 import testnet3 from './testnet3.json';
 
-export const environments = { test, testnet2, mainnet, testnet3, mainnet2 };
+export const environments = {
+  test,
+  testnet2,
+  mainnet,
+  testnet3,
+  mainnet2,
+  khala,
+};
 
 type HyperlaneCoreAddressMap = LooseChainMap<{
   mailbox: types.Address;
@@ -22,7 +30,7 @@ type HyperlaneCoreAddressMap = LooseChainMap<{
 
 // Export developer-relevant addresses
 export const hyperlaneCoreAddresses = objMap(
-  { ...testnet2, ...mainnet },
+  { ...testnet2, ...mainnet, ...khala },
   (_chain, addresses) => ({
     mailbox: addresses.mailbox.proxy,
     multisigIsm: addresses.multisigIsm,

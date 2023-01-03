@@ -17,8 +17,13 @@ import {
 
 async function main() {
   const environment = await getEnvironment();
+  console.log(`Loading Config for environment: ${environment}`);
   const config = getCoreEnvironmentConfig(environment) as any;
+  console.log(`Loading Multiprovider for environment: ${environment}`);
   const multiProvider = await config.getMultiProvider();
+  console.log(
+    `Loading HyperlaneCoreInfraDeployer for environment: ${environment}`,
+  );
   const deployer = new HyperlaneCoreInfraDeployer(
     multiProvider,
     config.core,
@@ -34,6 +39,8 @@ async function main() {
       getCoreContractsSdkFilepath(),
       `${environment}.json`,
     );
+    // This is currently empty
+    console.log(` Addressees : ${JSON.stringify(addresses)}`);
     previousContracts = buildContracts(addresses, coreFactories);
   } catch (e) {
     console.info('Could not load partial core addresses, file may not exist');

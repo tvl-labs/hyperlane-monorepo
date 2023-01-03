@@ -1,18 +1,14 @@
 import { ChainMap } from '.';
-import '@nomiclabs/hardhat-waffle';
-import { ethers } from 'hardhat';
+// import '@nomiclabs/hardhat-waffle';
+// import { ethers } from 'hardhat';
+import { ethers } from 'ethers';
 
-import { chainConnectionConfigs } from './consts/chainConnectionConfigs';
 import { HyperlaneCore } from './core/HyperlaneCore';
 import { HyperlaneCoreDeployer } from './deploy/core/HyperlaneCoreDeployer';
-import { CoreConfig, MultisigIsmConfig } from './deploy/core/types';
+import { CoreConfig } from './deploy/core/types';
 import { RouterConfig } from './deploy/router/types';
 import { EnvironmentConfig } from './deploy/types';
-import {
-  getChainToOwnerMap,
-  getKhalaMultiProvider,
-  getTestMultiProvider,
-} from './deploy/utils';
+import { getChainToOwnerMap, getKhalaMultiProvider } from './deploy/utils';
 import { MultiProvider } from './providers/MultiProvider';
 import { RouterContracts } from './router';
 // Create Deploy contracts to Godwoken, Axon and Goerli (Maybe use Sepolia?)
@@ -22,28 +18,24 @@ import {
   EnvSubsetApp,
   EnvSubsetChecker,
   EnvSubsetDeployer,
-  KhalaSubsetChains,
-  SubsetChains,
-  fullEnvConfigs,
+  KhalaSubsetChains, // SubsetChains,
+  // fullEnvConfigs,
   fullEnvTestConfigs,
-  subsetKhalaConfigs,
-  subsetTestConfigs,
+  subsetKhalaConfigs, // subsetTestConfigs,
 } from './test/envSubsetDeployer/app';
-import { ChainName, TestChainNames } from './types';
+import { ChainName, KhalaChainNames } from './types';
 
-// import { ChainMap } from '.';
+require('dotenv').config();
 
-let multiProvider: MultiProvider<Ch>;
-let config: ChainMap<KhalaSubsetChains, RouterConfig>;
-let deployer: EnvSubsetDeployer<KhalaSubsetChains>;
-let contracts: Record<KhalaSubsetChains, RouterContracts>;
+const provider = new ethers.providers.JsonRpcProvider('https://axon-node.info');
+
 let ismOwnerAddress = ethers.utils.getAddress(
   '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
 );
 let validatorAddress = [
   ethers.utils.getAddress('0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf'),
 ];
-let app: EnvSubsetApp<KhalaSubsetChains>;
+
 let multisigIsmConfig: CoreConfig = {
   owner: ismOwnerAddress,
   multisigIsm: {
@@ -57,33 +49,52 @@ const configs = {
   goerli: multisigIsmConfig,
 } as ChainMap<ChainName, CoreConfig>;
 
-async function deploy() {
-  const env = await initEnv(fullEnvConfigs);
-  multiProvider = env.multiProvider;
+// import { ChainMap } from '.';
+async function main() {
+  const env = await initEnv(fullEnvTestConfigs);
+  let multiProvider: MultiProvider<KhalaSubsetChains>;
+  let config: ChainMap<KhalaSubsetChains, RouterConfig>;
+  let deployer: EnvSubsetDeployer<KhalaSubsetChains>;
+  let contracts: Record<KhalaSubsetChains, RouterContracts>;
+  let app: EnvSubsetApp<KhalaSubsetChains>;
+
   config = {
     khala: env.config.khala,
     goerli: env.config.goerli,
   };
+
+  multiProvider = env.multiProvider;
   deployer = env.deployer;
   contracts = await deployer.deploy();
   app = new EnvSubsetApp(contracts, multiProvider);
+  const checker = new EnvSubsetChecker(multiProvider, app, config);
+  console.log(`checker: ${checker}`);
   // app = new EnvSubsetApp(fullEnvTestConfigs);
   // await app.init();
 }
 
-async function initEnv<Chain extends TestChainNames>(
+async function initEnv<Chain extends KhalaChainNames>(
   environmentConfig: EnvironmentConfig<Chain>,
 ) {
-  const [signer] = await ethers.getSigners();
+  // const [signer] = await ethers.getSigners();
+  // const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const signer = new ethers.Wallet(
+    '3f979f04df632edc0e28a478b9adc34c9262a1a52c7597664e442b9c0093b8f2',
+    provider,
+  );
+
   const multiProvider = getKhalaMultiProvider(signer, environmentConfig);
 
   const coreDeployer = new HyperlaneCoreDeployer(multiProvider, configs);
   const coreContractsMaps = await coreDeployer.deploy();
   const core = new HyperlaneCore(coreContractsMaps, multiProvider);
   const config = core.extendWithConnectionClientConfig(
-    // getChainToOwnerMap(subsetKhalaConfigs, signer.address),
-    getChainToOwnerMap(fullEnvConfigs, signer.address),
+    getChainToOwnerMap(subsetKhalaConfigs, signer.address),
   );
   const deployer = new EnvSubsetDeployer(multiProvider, config, core);
   return { multiProvider, config, deployer };
 }
+
+main()
+  .then(() => console.info('Deploy complete'))
+  .catch(console.error);

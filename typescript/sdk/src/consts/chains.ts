@@ -59,6 +59,7 @@ export const Testnets = [
   Chains.moonbasealpha,
   Chains.mumbai,
   Chains.optimismgoerli,
+  Chains.khala,
 ] as Array<ChainName>;
 
 export const TestChains = [

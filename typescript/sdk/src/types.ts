@@ -14,6 +14,8 @@ export type ChainMap<Chain extends ChainName, Value> = Record<Chain, Value>;
 // The names of test chains, should be kept up to date if new are added
 export type TestChainNames = 'test1' | 'test2' | 'test3';
 
+export type KhalaChainNames = 'khala' | 'goerli';
+
 export type NameOrDomain = ChainName | number;
 
 export type Remotes<

@@ -1,3 +1,4 @@
+// import { Router__factory, TestRouter__factory } from '@hyperlane-xyz/core';
 import { TestRouter__factory } from '@hyperlane-xyz/core';
 
 import { HyperlaneApp } from '../../HyperlaneApp';
@@ -58,6 +59,7 @@ export class EnvSubsetChecker<
 
 export const envSubsetFactories: RouterFactories = {
   router: new TestRouter__factory(),
+  // router: new Router__factory(),
 };
 
 export class EnvSubsetDeployer<

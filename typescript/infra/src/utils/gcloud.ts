@@ -19,6 +19,7 @@ export async function fetchGCPSecret(secretName: string, parseJson = true) {
   let output: string;
 
   const envVarOverride = tryGCPSecretFromEnvVariable(secretName);
+  console.log(`secretName: ${secretName}`);
   if (envVarOverride !== undefined) {
     console.log(
       `Using environment variable instead of GCP secret with name ${secretName}`,
@@ -29,8 +30,9 @@ export async function fetchGCPSecret(secretName: string, parseJson = true) {
       `gcloud secrets versions access latest --secret ${secretName}`,
     );
   }
-
+  console.log(`output: ${output}`);
   if (parseJson) {
+    console.log(`parsing json output: ${output}`);
     return JSON.parse(output);
   }
   return output;

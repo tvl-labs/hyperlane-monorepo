@@ -1,0 +1,10 @@
+{
+  "environment": "khala",
+  "chains": {},
+  "signers": {},
+  "db": "db_path",
+  "tracing": {
+    "level": "debug",
+    "fmt": "json"
+  }
+}
