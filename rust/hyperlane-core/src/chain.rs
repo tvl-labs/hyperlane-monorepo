@@ -100,7 +100,7 @@ pub enum KnownHyperlaneDomain {
 
     Zksync2Testnet = 280,
 
-    Khala = 100012,
+    Khala = 10012,
 
     // -- Local test chains --
     /// Test1 local chain

@@ -259,61 +259,71 @@ export abstract class HyperlaneDeployer<
       initArgs,
     );
     let proxy: TransparentUpgradeableProxy;
-    const chainConnection = this.multiProvider.getChainConnection(chain);
+    // const chainConnection = this.multiProvider.getChainConnection(chain);
     this.logger(`Deploying transparent upgradable proxy`);
-    if (
-      deployOpts &&
-      deployOpts.create2Salt &&
-      (await chainConnection.provider.getCode(CREATE2FACTORY_ADDRESS)) != '0x'
-    ) {
-      // To get consistent addresses with Create2, we need to use
-      // consistent constructor arguments.
-      // The three constructor arguments we need to configure are:
-      // 1. Proxy implementation: This will start as the Create2Factory
-      //    address, as it needs to be a contract address.
-      //    After we've taken over as the proxy admin, we will set it
-      //    to the proper address.
-      // 2. Proxy admin: This will start as the Create2Factory contract
-      //    address. We will change this to the proper address atomically.
-      // 3. Initialization data: This will start as null, and we will
-      //    initialize our proxied contract manually.
-      const constructorArgs: Parameters<
-        TransparentUpgradeableProxy__factory['deploy']
-      > = [CREATE2FACTORY_ADDRESS, CREATE2FACTORY_ADDRESS, '0x'];
-      // We set the initCallData to atomically change admin to the proxyAdmin
-      // contract.
-      const initCalldata =
-        new TransparentUpgradeableProxy__factory().interface.encodeFunctionData(
-          'changeAdmin',
-          [proxyAdmin.address],
-        );
-      proxy = await this.deployContractFromFactory(
-        chain,
-        new TransparentUpgradeableProxy__factory(),
-        'TransparentUpgradableProxy',
-        constructorArgs,
-        { ...deployOpts, initCalldata },
-      );
-      this.logger(`Upgrading and initializing transparent upgradable proxy`);
-      // We now have a deployed proxy admin'd by ProxyAdmin.
-      // Upgrade its implementation and initialize it
-      await proxyAdmin.upgradeAndCall(
-        proxy.address,
-        implementation.address,
-        initData,
-        chainConnection.overrides,
-      );
-    } else {
-      const constructorArgs: Parameters<
-        TransparentUpgradeableProxy__factory['deploy']
-      > = [implementation.address, proxyAdmin.address, initData];
-      proxy = await this.deployContractFromFactory(
-        chain,
-        new TransparentUpgradeableProxy__factory(),
-        'TransparentUpgradableProxy',
-        constructorArgs,
-      );
-    }
+    // if (
+    //   deployOpts &&
+    //   deployOpts.create2Salt &&
+    //   (await chainConnection.provider.getCode(CREATE2FACTORY_ADDRESS)) != '0x'
+    // ) {
+    //   // To get consistent addresses with Create2, we need to use
+    //   // consistent constructor arguments.
+    //   // The three constructor arguments we need to configure are:
+    //   // 1. Proxy implementation: This will start as the Create2Factory
+    //   //    address, as it needs to be a contract address.
+    //   //    After we've taken over as the proxy admin, we will set it
+    //   //    to the proper address.
+    //   // 2. Proxy admin: This will start as the Create2Factory contract
+    //   //    address. We will change this to the proper address atomically.
+    //   // 3. Initialization data: This will start as null, and we will
+    //   //    initialize our proxied contract manually.
+    //   const constructorArgs: Parameters<
+    //     TransparentUpgradeableProxy__factory['deploy']
+    //   > = [CREATE2FACTORY_ADDRESS, CREATE2FACTORY_ADDRESS, '0x'];
+    //   // We set the initCallData to atomically change admin to the proxyAdmin
+    //   // contract.
+    //   const initCalldata =
+    //     new TransparentUpgradeableProxy__factory().interface.encodeFunctionData(
+    //       'changeAdmin',
+    //       [proxyAdmin.address],
+    //     );
+    //   proxy = await this.deployContractFromFactory(
+    //     chain,
+    //     new TransparentUpgradeableProxy__factory(),
+    //     'TransparentUpgradableProxy',
+    //     constructorArgs,
+    //     { ...deployOpts, initCalldata },
+    //   );
+    //   this.logger(`Upgrading and initializing transparent upgradable proxy`);
+    //   // We now have a deployed proxy admin'd by ProxyAdmin.
+    //   // Upgrade its implementation and initialize it
+    //   await proxyAdmin.upgradeAndCall(
+    //     proxy.address,
+    //     implementation.address,
+    //     initData,
+    //     chainConnection.overrides,
+    //   );
+    // } else {
+    //   const constructorArgs: Parameters<
+    //     TransparentUpgradeableProxy__factory['deploy']
+    //   > = [implementation.address, proxyAdmin.address, initData];
+    //   proxy = await this.deployContractFromFactory(
+    //     chain,
+    //     new TransparentUpgradeableProxy__factory(),
+    //     'TransparentUpgradableProxy',
+    //     constructorArgs,
+    //   );
+    // }
+
+    const constructorArgs: Parameters<
+      TransparentUpgradeableProxy__factory['deploy']
+    > = [implementation.address, proxyAdmin.address, initData];
+    proxy = await this.deployContractFromFactory(
+      chain,
+      new TransparentUpgradeableProxy__factory(),
+      'TransparentUpgradableProxy',
+      constructorArgs,
+    );
 
     return new ProxiedContract<C, TransparentProxyAddresses>(
       implementation.attach(proxy.address) as C,

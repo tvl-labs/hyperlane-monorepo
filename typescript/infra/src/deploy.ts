@@ -5,7 +5,7 @@ import {
   HyperlaneFactories,
   buildContracts,
   serializeContracts,
-} from '@hyperlane-xyz/sdk';
+} from '../../sdk';
 
 import { readJSON, writeJSON } from './utils/utils';
 

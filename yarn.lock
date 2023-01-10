@@ -2966,7 +2966,7 @@ __metadata:
     "@typechain/hardhat": ^6.0.0
     chai: ^4.3.0
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     hardhat: ^2.8.4
     hardhat-gas-reporter: ^1.0.7
     prettier: ^2.4.1
@@ -2998,7 +2998,7 @@ __metadata:
     eslint: ^8.16.0
     eslint-config-prettier: ^8.5.0
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     hardhat: ^2.8.4
     hardhat-gas-reporter: ^1.0.7
     prettier: ^2.4.1
@@ -3032,7 +3032,7 @@ __metadata:
     eslint: ^8.16.0
     eslint-config-prettier: ^8.5.0
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     hardhat: ^2.8.4
     hardhat-gas-reporter: ^1.0.7
     prettier: ^2.4.1
@@ -3075,7 +3075,7 @@ __metadata:
     chai: ^4.3.4
     dotenv: ^10.0.0
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     hardhat: ^2.8.4
     husky: ^8.0.3
     husky-run: ^0.0.0
@@ -3122,7 +3122,7 @@ __metadata:
     debug: ^4.3.4
     dotenv: ^16.0.3
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     fs: 0.0.1-security
     hardhat: ^2.8.4
     mocha: ^9.2.2
@@ -3139,7 +3139,7 @@ __metadata:
   resolution: "@hyperlane-xyz/utils@workspace:typescript/utils"
   dependencies:
     chai: ^4.3.0
-    ethers: ^5.6.8
+    ethers: ^5.7.2
     prettier: ^2.4.1
     typescript: ^4.7.2
   languageName: unknown

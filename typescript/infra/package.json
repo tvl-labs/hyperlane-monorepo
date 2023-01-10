@@ -35,7 +35,7 @@
     "@types/yargs": "^17.0.10",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.4",
-    "ethers": "^5.6.8",
+    "ethers": "^5.7.2",
     "hardhat": "^2.8.4",
     "prettier": "^2.4.1",
     "ts-node": "^10.8.0",
@@ -55,6 +55,7 @@
   "scripts": {
     "hyperlane": "ts-node scripts/core.ts -e test --context hyperlane",
     "khala": "ts-node scripts/core.ts -e khala --context hyperlane",
+    "verify": "ts-node scripts/verify.ts -e khala --context hyperlane --source ../../solidity/flatten.sol --artifacts ./config/environments/khala/core/verification/verification.json",
     "build": "tsc",
     "clean": "rm -rf ./dist ./cache",
     "check": "tsc --noEmit",

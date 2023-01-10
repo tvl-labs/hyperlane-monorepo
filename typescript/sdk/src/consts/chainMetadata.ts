@@ -332,14 +332,14 @@ export const goerli: ChainMetadata = {
     },
   ],
   blocks: {
-    confirmations: 1,
+    confirmations: 25,
     reorgPeriod: 2,
     estimateBlockTime: 13,
   },
 };
 
 export const khala: ChainMetadata = {
-  id: 100012,
+  id: 10012,
   name: Chains.khala,
   displayName: 'Khala',
   nativeToken: khalaToken,
@@ -358,9 +358,37 @@ export const khala: ChainMetadata = {
     },
   ],
   blocks: {
-    confirmations: 15,
+    confirmations: 5,
     reorgPeriod: 0,
     estimateBlockTime: 3,
+  },
+  gnosisSafeTransactionServiceUrl:
+    'https://transaction-service.gnosis-safe-staging.celo-networks-dev.org',
+};
+
+export const sepolia: ChainMetadata = {
+  id: 11155111,
+  name: Chains.sepolia,
+  displayName: 'Sepolia',
+  nativeToken: etherToken,
+  publicRpcUrls: [{ http: 'https://rpc.sepolia.org/' }],
+  blockExplorers: [
+    {
+      name: 'Etherscan',
+      url: 'https://sepolia.etherscan.io/',
+      apiUrl: 'https://api-sepolia.etherscan.io',
+      family: ExplorerFamily.Etherscan,
+    },
+    {
+      name: 'Etherscan',
+      url: 'https://sepolia.etherscan.io/',
+      family: ExplorerFamily.Etherscan,
+    },
+  ],
+  blocks: {
+    confirmations: 3,
+    reorgPeriod: 0,
+    estimateBlockTime: 12,
   },
   gnosisSafeTransactionServiceUrl:
     'https://transaction-service.gnosis-safe-staging.celo-networks-dev.org',
@@ -599,6 +627,7 @@ export const chainMetadata = {
   test1,
   test2,
   test3,
+  sepolia,
 } as Record<ChainName, ChainMetadata>;
 
 // For convenient use in wagmi-based apps

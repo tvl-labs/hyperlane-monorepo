@@ -17,9 +17,21 @@ export const khalaConfigs = {
   //     // gasPrice: 50 * 10 ** 9, // 50 gwei
   //   },
   // },
-  goerli: chainConnectionConfigs.goerli,
+  // goerli: chainConnectionConfigs.goerli,
+  // fuji: {
+  //   ...chainConnectionConfigs.fuji,
+  //   confirmations: 3,
+  //   overrides: {
+  //     maxFeePerGas: 500 * 10 ** 9, // 500 gwei
+  //     maxPriorityFeePerGas: 10 * 10 ** 9, // 100 gwei
+  //     // gasPrice: 50 * 10 ** 9, // 50 gwei
+  //   },
+  // },
+  // fuji: chainConnectionConfigs.fuji,
   // arbitrum: chainConnectionConfigs.arbitrum,
+  mumbai: chainConnectionConfigs.mumbai,
   khala: chainConnectionConfigs.khala,
+  sepolia: chainConnectionConfigs.sepolia,
   // ethereum: {
   //   ...chainConnectionConfigs.ethereum,
   //   confirmations: 3,

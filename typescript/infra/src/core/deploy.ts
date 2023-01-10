@@ -93,7 +93,18 @@ export class HyperlaneCoreInfraDeployer<
       ) {
         return;
       }
+      // console.log(`deployed contracts ${JSON.stringify(contracts.mailbox.contract)} ${chain}`)
+      console.log(`chain ${chain}`);
 
+      console.log(
+        `deployed contracts ${contracts.mailbox.contract.address} ${chain}`,
+      );
+      console.log(
+        `deployed contracts ${contracts.interchainGasPaymaster.address} ${chain}`,
+      );
+      console.log(
+        `deployed contracts ${contracts.multisigIsm.address} ${chain}`,
+      );
       const chainConfig: RustChainSetup = {
         name: chain,
         domain: metadata.id.toString(),

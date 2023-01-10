@@ -166,6 +166,8 @@ export function readFileAtPath(filepath: string) {
   if (!fs.existsSync(filepath)) {
     throw Error(`file doesn't exist at ${filepath}`);
   }
+  console.log('reading file');
+  console.log(`filepath ${filepath}`);
   return fs.readFileSync(filepath, 'utf8');
 }
 

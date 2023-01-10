@@ -52,6 +52,7 @@ async function main() {
     console.error(`Encountered error during deploy`);
     console.error(e);
   }
+  console.log;
 
   // Persist artifacts, irrespective of deploy success
   writeJSON(
@@ -61,6 +62,9 @@ async function main() {
   );
   const verificationDir = getCoreVerificationDirectory(environment);
   const verificationFile = 'verification.json';
+  console.log(
+    `Writing verification inputs to ${verificationDir}/${verificationFile}`,
+  );
   let existingVerificationInputs = [];
   try {
     existingVerificationInputs = readJSON(verificationDir, verificationFile);

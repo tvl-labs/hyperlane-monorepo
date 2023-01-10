@@ -1,6 +1,6 @@
 import { utils } from '@hyperlane-xyz/utils';
 
-import { ChainName } from '../.../../../../sdk';
+import { ChainName } from '../../../sdk';
 import { Contexts } from '../../config/contexts';
 import { AgentConfig, DeployEnvironment } from '../config';
 import {

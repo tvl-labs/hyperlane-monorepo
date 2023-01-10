@@ -7,7 +7,7 @@ import { objMap } from '../utils/objects';
 
 import { chainMetadata } from './chainMetadata';
 // import { Chains, Mainnets, TestChains, Testnets } from './chains';
-import { Chains } from './chains';
+import { Chains, TestChains } from './chains';
 
 function testChainConnection() {
   return {
@@ -41,7 +41,7 @@ function testChainConnection() {
 
 export const chainConnectionConfigs: ChainMap<ChainName, IChainConnection> =
   objMap(chainMetadata, (chainName, metadata) => {
-    // if (TestChains.includes(chainName)) return testChainConnection();
+    if (TestChains.includes(chainName)) return testChainConnection();
     // if (Testnets.includes("goerli")) return goerliChainConnection();
     // if (Mainnets.includes("khala")) return khalaChainConnection();
 

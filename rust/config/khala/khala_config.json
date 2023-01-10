@@ -3,11 +3,11 @@
   "chains": {
     "khala": {
       "name": "khala",
-      "domain": "100012",
+      "domain": "10012",
       "addresses": {
-        "mailbox": "0x862f0A3bE8E91953873E8d002A6681A98F01E2bf",
-        "interchainGasPaymaster": "0xbd3cA07Bb065a193Ce6d5De8f513adB074ffcBF8",
-        "multisigIsm": "0xd1Bc55849bAEC2CE78BE4aBe66c56a8Bd05d30ae"
+        "mailbox": "0x8476C01394F41dCa600e16cf6F2aE8c21caC1842",
+        "interchainGasPaymaster": "0x608A50FB3461C10beB6eb0527f821Df0F84D9A43",
+        "multisigIsm": "0x7e6f4a75454C0F28681fA136340E08ABF713B12D"
       },
       "rpcStyle": "ethereum",
       "finalityBlocks": "0",
@@ -16,25 +16,43 @@
         "url": ""
       },
       "index": {
-        "from": "1953975"
+        "from": "2147609"
       }
     },
-    "goerli": {
-      "name": "goerli",
-      "domain": "5",
+    "mumbai": {
+      "name": "mumbai",
+      "domain": "80001",
       "addresses": {
-        "mailbox": "0x9d64386193A226243Cb79142cC06F6AaBF24040c",
-        "interchainGasPaymaster": "0x399077e77A7DF0dace273182C3411C3eC7Ce87AD",
-        "multisigIsm": "0x198c7715afde57C4aD12F20c4F97219f98Fa5a52"
+        "mailbox": "0x61B372d130e37d75E182ED35aCcACd30cbBfD156",
+        "interchainGasPaymaster": "0x6652f72757f8Ee6cd01fF430E8e1a3569fef6A8C",
+        "multisigIsm": "0x9870741f31040612E1927E16A6436F50a820e68a"
       },
       "rpcStyle": "ethereum",
-      "finalityBlocks": "2",
+      "finalityBlocks": "32",
       "connection": {
         "type": "http",
         "url": ""
       },
       "index": {
-        "from": "8251958"
+        "from": "30786150"
+      }
+    },
+    "sepolia": {
+      "name": "sepolia",
+      "domain": "11155111",
+      "addresses": {
+        "mailbox": "0x9C5478dA0C1670E460c66073cb1255b037C5eD73",
+        "interchainGasPaymaster": "0xc6bb4B01e22b5916D1F1fF08122A38bB436c3452",
+        "multisigIsm": "0x94d67fa3426A6DD3Cc4C79c65BB1a77B51EbEcfc"
+      },
+      "rpcStyle": "ethereum",
+      "finalityBlocks": "0",
+      "connection": {
+        "type": "http",
+        "url": ""
+      },
+      "index": {
+        "from": "2660093"
       }
     }
   },

@@ -65,7 +65,10 @@ export const hyperlane: AgentConfig<MainnetChains> = {
       khala: {
         reorgPeriod: 0,
       },
-      goerli: {
+      // fuji: {
+      //   reorgPeriod: 20,
+      // },
+      sepolia: {
         reorgPeriod: 20,
       },
     },

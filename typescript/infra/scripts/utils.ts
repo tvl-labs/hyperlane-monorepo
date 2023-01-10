@@ -9,8 +9,7 @@ import {
   MultiProvider,
   objMap,
   promiseObjAll,
-} from '@hyperlane-xyz/sdk';
-
+} from '../../sdk';
 import { Contexts } from '../config/contexts';
 import { environments } from '../config/environments';
 import { getCurrentKubernetesContext } from '../src/agents';

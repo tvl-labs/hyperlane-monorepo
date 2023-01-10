@@ -1,78 +1,99 @@
-import { ChainName } from '../../../../sdk';
+// import { ChainName } from '../../../../sdk';
 import {
   ChainValidatorSets,
   CheckpointSyncerType,
 } from '../../../src/config/agent';
 
-import { MainnetChains, environment } from './chains';
+// import { MainnetChains, environment } from './chains';
+import { MainnetChains } from './chains';
 
 const s3BucketRegion = 'us-east-1';
 
-const s3BucketName = <Chain extends ChainName>(
-  chainName: Chain,
-  index: number,
-) => `hyperlane-${environment}-${chainName}-validator-${index}`;
+// const s3BucketName = <Chain extends ChainName>(
+//   chainName: Chain,
+//   index: number,
+// ) => `hyperlane-${environment}-${chainName}-validator-${index}`;
+
+const s3BucketName = (index: number) => `khala-validators-signatures-${index}`;
 
 export const validators: ChainValidatorSets<MainnetChains> = {
   khala: {
-    threshold: 2,
+    threshold: 1,
     validators: [
       {
-        address: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
-        name: s3BucketName('khala', 0),
+        address: '0xa22f3424a39da34676d766d3dbc340a871536d78',
+        name: s3BucketName(1),
         checkpointSyncer: {
           type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('khala', 0),
+          bucket: s3BucketName(1),
           region: s3BucketRegion,
         },
       },
+      // {
+      //   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      //   name: s3BucketName('khala', 1),
+      //   checkpointSyncer: {
+      //     type: CheckpointSyncerType.S3,
+      //     bucket: s3BucketName('khala', 1),
+      //     region: s3BucketRegion,
+      //   },
+      // },
+      // {
+      //   address: '0xcb8cAe41dE32Cbee91A12086D79777eeF24F450a',
+      //   name: s3BucketName('khala', 2),
+      //   checkpointSyncer: {
+      //     type: CheckpointSyncerType.S3,
+      //     bucket: s3BucketName('khala', 2),
+      //     region: s3BucketRegion,
+      //   },
+      // },
+    ],
+  },
+  mumbai: {
+    threshold: 1,
+    validators: [
       {
-        address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-        name: s3BucketName('khala', 1),
+        address: '0xc27faa511c23e24b365a9c76cbb425a4e32bfc6e',
+        name: s3BucketName(2),
         checkpointSyncer: {
           type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('khala', 1),
-          region: s3BucketRegion,
-        },
-      },
-      {
-        address: '0xcb8cAe41dE32Cbee91A12086D79777eeF24F450a',
-        name: s3BucketName('khala', 2),
-        checkpointSyncer: {
-          type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('khala', 2),
+          bucket: s3BucketName(2),
           region: s3BucketRegion,
         },
       },
     ],
   },
-  goerli: {
-    threshold: 2,
+
+  // {
+  //   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  //   name: s3BucketName('goerli', 1),
+  //   checkpointSyncer: {
+  //     type: CheckpointSyncerType.S3,
+  //     bucket: s3BucketName('goerli', 1),
+  //     region: s3BucketRegion,
+  //   },
+  // },
+  // {
+  //   address: '0xcb8cAe41dE32Cbee91A12086D79777eeF24F450a',
+  //   name: s3BucketName('goerli', 2),
+  //   checkpointSyncer: {
+  //     type: CheckpointSyncerType.S3,
+  //     bucket: s3BucketName('goerli', 2),
+  //     region: s3BucketRegion,
+  //   },
+  // },
+  // ],
+  // },
+
+  sepolia: {
+    threshold: 1,
     validators: [
       {
-        address: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
-        name: s3BucketName('goerli', 0),
+        address: '0xc27faa511c23e24b365a9c76cbb425a4e32bfc6e',
+        name: s3BucketName(2),
         checkpointSyncer: {
           type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('goerli', 0),
-          region: s3BucketRegion,
-        },
-      },
-      {
-        address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-        name: s3BucketName('goerli', 1),
-        checkpointSyncer: {
-          type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('goerli', 1),
-          region: s3BucketRegion,
-        },
-      },
-      {
-        address: '0xcb8cAe41dE32Cbee91A12086D79777eeF24F450a',
-        name: s3BucketName('goerli', 2),
-        checkpointSyncer: {
-          type: CheckpointSyncerType.S3,
-          bucket: s3BucketName('goerli', 2),
+          bucket: s3BucketName(3),
           region: s3BucketRegion,
         },
       },
