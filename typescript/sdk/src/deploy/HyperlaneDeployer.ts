@@ -261,6 +261,10 @@ export abstract class HyperlaneDeployer<
     let proxy: TransparentUpgradeableProxy;
     // const chainConnection = this.multiProvider.getChainConnection(chain);
     this.logger(`Deploying transparent upgradable proxy`);
+    // NOTE  (SD):
+    //  This was commented out due to its execution creating reverts from failed runs
+    // as we are trying to deploy code to a non-empty address , as this address is
+    //  already populated with code on previous runs.
     // if (
     //   deployOpts &&
     //   deployOpts.create2Salt &&

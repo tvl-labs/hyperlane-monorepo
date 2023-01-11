@@ -5,9 +5,9 @@
       "name": "khala",
       "domain": "10012",
       "addresses": {
-        "mailbox": "0x8476C01394F41dCa600e16cf6F2aE8c21caC1842",
-        "interchainGasPaymaster": "0x608A50FB3461C10beB6eb0527f821Df0F84D9A43",
-        "multisigIsm": "0x7e6f4a75454C0F28681fA136340E08ABF713B12D"
+        "mailbox": "0x607E00Bc1C4F29131501Db72ae9F97d2b8666cDb",
+        "interchainGasPaymaster": "0x10FEb6012653fCF6E55e1793D3953053a099d474",
+        "multisigIsm": "0x85DA99eDDEF29eDD5156CB9819eecA2CdCc8c9dA"
       },
       "rpcStyle": "ethereum",
       "finalityBlocks": "0",
@@ -16,43 +16,43 @@
         "url": ""
       },
       "index": {
-        "from": "2147609"
+        "from": "2158645"
       }
     },
-    "mumbai": {
-      "name": "mumbai",
-      "domain": "80001",
+    "fuji": {
+      "name": "fuji",
+      "domain": "43113",
       "addresses": {
-        "mailbox": "0x61B372d130e37d75E182ED35aCcACd30cbBfD156",
-        "interchainGasPaymaster": "0x6652f72757f8Ee6cd01fF430E8e1a3569fef6A8C",
-        "multisigIsm": "0x9870741f31040612E1927E16A6436F50a820e68a"
+        "mailbox": "0x9308fD2411945Aa434cFaA0a525375Bf6CF2b17B",
+        "interchainGasPaymaster": "0x5C0e99e1638AE2cCFa307241E8fEA72d4F725599",
+        "multisigIsm": "0xB7232Bdf79e3d1845c20F547d2C4F3Bb074640eb"
       },
       "rpcStyle": "ethereum",
-      "finalityBlocks": "32",
+      "finalityBlocks": "3",
       "connection": {
         "type": "http",
         "url": ""
       },
       "index": {
-        "from": "30786150"
+        "from": "17894842"
       }
     },
-    "sepolia": {
-      "name": "sepolia",
-      "domain": "11155111",
+    "goerli": {
+      "name": "goerli",
+      "domain": "5",
       "addresses": {
-        "mailbox": "0x9C5478dA0C1670E460c66073cb1255b037C5eD73",
-        "interchainGasPaymaster": "0xc6bb4B01e22b5916D1F1fF08122A38bB436c3452",
-        "multisigIsm": "0x94d67fa3426A6DD3Cc4C79c65BB1a77B51EbEcfc"
+        "mailbox": "0x01b073553082B7f6cE265E2AbE7770570f3171B8",
+        "interchainGasPaymaster": "0xCf709eb20FBE193Df4975Ef5b2EC97E822606Eb4",
+        "multisigIsm": "0x947C33521E791882f0ac7c16c5304f2eC7973bed"
       },
       "rpcStyle": "ethereum",
-      "finalityBlocks": "0",
+      "finalityBlocks": "2",
       "connection": {
         "type": "http",
         "url": ""
       },
       "index": {
-        "from": "2660093"
+        "from": "8290697"
       }
     }
   },

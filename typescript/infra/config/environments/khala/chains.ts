@@ -29,9 +29,9 @@ export const khalaConfigs = {
   // },
   // fuji: chainConnectionConfigs.fuji,
   // arbitrum: chainConnectionConfigs.arbitrum,
-  mumbai: chainConnectionConfigs.mumbai,
+  goerli: chainConnectionConfigs.goerli,
   khala: chainConnectionConfigs.khala,
-  sepolia: chainConnectionConfigs.sepolia,
+  fuji: chainConnectionConfigs.fuji,
   // ethereum: {
   //   ...chainConnectionConfigs.ethereum,
   //   confirmations: 3,

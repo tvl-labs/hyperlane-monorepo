@@ -16,8 +16,8 @@ import { validators } from './validators';
 
 const owners: ChainMap<MainnetChains, string> = {
   khala: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
-  mumbai: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
-  sepolia: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
+  fuji: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
+  goerli: '0xe7d5869FE1955F2500987B9eCCFF0a9452c164cf',
 };
 
 export const core: ChainMap<MainnetChains, CoreConfig> = objMap(
