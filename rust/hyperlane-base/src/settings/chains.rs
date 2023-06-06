@@ -7,6 +7,7 @@ use serde::Deserialize;
 use ethers_prometheus::middleware::{
     ChainInfo, ContractInfo, PrometheusMiddlewareConf, WalletInfo,
 };
+use hyperlane_cardano as h_cardano;
 use hyperlane_core::{
     config::*, AggregationIsm, ContractLocator, HyperlaneAbi, HyperlaneDomain,
     HyperlaneDomainProtocol, HyperlaneProvider, HyperlaneSigner, IndexMode, Indexer,
@@ -34,6 +35,8 @@ pub enum ChainConnectionConf {
     Fuel(h_fuel::ConnectionConf),
     /// Sealevel configuration.
     Sealevel(h_sealevel::ConnectionConf),
+    /// Sealevel configuration.
+    Cardano(h_cardano::ConnectionConf),
 }
 
 /// Specify the chain name (enum variant) under the `chain` key
@@ -71,6 +74,7 @@ impl ChainConnectionConf {
             Self::Ethereum(_) => HyperlaneDomainProtocol::Ethereum,
             Self::Fuel(_) => HyperlaneDomainProtocol::Fuel,
             Self::Sealevel(_) => HyperlaneDomainProtocol::Sealevel,
+            Self::Cardano(_) => HyperlaneDomainProtocol::Cardano,
         }
     }
 }
@@ -333,6 +337,7 @@ impl ChainConf {
             }
             ChainConnectionConf::Fuel(_) => todo!(),
             ChainConnectionConf::Sealevel(_) => todo!(),
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -357,6 +362,12 @@ impl ChainConf {
             ChainConnectionConf::Sealevel(conf) => {
                 let keypair = self.sealevel_signer().await.context(ctx)?;
                 h_sealevel::SealevelMailbox::new(conf, locator, keypair)
+                    .map(|m| Box::new(m) as Box<dyn Mailbox>)
+                    .map_err(Into::into)
+            }
+            ChainConnectionConf::Cardano(conf) => {
+                let keypair = self.cardano_signer().await.context(ctx)?;
+                h_cardano::CardanoMailbox::new(conf, locator, keypair)
                     .map(|m| Box::new(m) as Box<dyn Mailbox>)
                     .map_err(Into::into)
             }
@@ -390,6 +401,7 @@ impl ChainConf {
                 let indexer = Box::new(h_sealevel::SealevelMailboxIndexer::new(conf, locator)?);
                 Ok(indexer as Box<dyn MessageIndexer>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -420,6 +432,7 @@ impl ChainConf {
                 let indexer = Box::new(h_sealevel::SealevelMailboxIndexer::new(conf, locator)?);
                 Ok(indexer as Box<dyn Indexer<H256>>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -451,6 +464,7 @@ impl ChainConf {
                 ));
                 Ok(paymaster as Box<dyn InterchainGasPaymaster>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -484,6 +498,7 @@ impl ChainConf {
                 ));
                 Ok(indexer as Box<dyn Indexer<InterchainGasPayment>>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -505,6 +520,7 @@ impl ChainConf {
                 let va = Box::new(h_sealevel::SealevelValidatorAnnounce::new(conf, locator));
                 Ok(va as Box<dyn ValidatorAnnounce>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context("Building ValidatorAnnounce")
     }
@@ -538,6 +554,7 @@ impl ChainConf {
                 ));
                 Ok(ism as Box<dyn InterchainSecurityModule>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -563,6 +580,7 @@ impl ChainConf {
                 let ism = Box::new(h_sealevel::SealevelMultisigIsm::new(conf, locator, keypair));
                 Ok(ism as Box<dyn MultisigIsm>)
             }
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -589,6 +607,7 @@ impl ChainConf {
             ChainConnectionConf::Sealevel(_) => {
                 Err(eyre!("Sealevel does not support routing ISM yet")).context(ctx)
             }
+            ChainConnectionConf::Cardano(_) => todo!("cardano does not support ISM"), // TODO[cardano]
         }
         .context(ctx)
     }
@@ -640,6 +659,10 @@ impl ChainConf {
     async fn sealevel_signer(
         &self,
     ) -> Result<Option<h_sealevel::solana::signer::keypair::Keypair>> {
+        self.signer().await
+    }
+
+    async fn cardano_signer(&self) -> Result<Option<h_cardano::cardano::signer::Keypair>> {
         self.signer().await
     }
 

@@ -2962,6 +2962,7 @@ dependencies = [
  "eyre",
  "fuels",
  "futures-util",
+ "hyperlane-cardano",
  "hyperlane-core",
  "hyperlane-ethereum",
  "hyperlane-fuel",
@@ -2993,6 +2994,15 @@ dependencies = [
  "tracing-opentelemetry",
  "tracing-subscriber",
  "warp",
+]
+
+[[package]]
+name = "hyperlane-cardano"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "hyperlane-core",
+ "url",
 ]
 
 [[package]]

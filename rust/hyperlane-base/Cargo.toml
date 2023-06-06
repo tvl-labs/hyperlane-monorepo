@@ -42,6 +42,7 @@ hyperlane-core = { path = "../hyperlane-core" }
 hyperlane-ethereum = { path = "../chains/hyperlane-ethereum" }
 hyperlane-fuel = { path = "../chains/hyperlane-fuel" }
 hyperlane-sealevel = { path = "../chains/hyperlane-sealevel" }
+hyperlane-cardano = { path = "../chains/hyperlane-cardano" }
 hyperlane-test = { path = "../hyperlane-test" }
 
 # these versions are important!
