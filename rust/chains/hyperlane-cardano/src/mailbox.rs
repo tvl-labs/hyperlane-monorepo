@@ -61,17 +61,15 @@ impl Mailbox for CardanoMailbox {
     }
 
     async fn count(&self, lag: Option<NonZeroU64>) -> ChainResult<u32> {
-        // TODO[cardano]
-        Ok(0)
+        self.tree(lag).await.map(|t| t.count() as u32)
     }
 
     async fn latest_checkpoint(&self, lag: Option<NonZeroU64>) -> ChainResult<Checkpoint> {
-        // TODO[cardano]
-        Ok(Checkpoint {
+        self.tree(lag).await.map(|t| Checkpoint {
             mailbox_domain: self.domain.id(),
             mailbox_address: self.outbox,
-            index: 0,
-            root: H256::zero(),
+            root: t.root(),
+            index: (t.count() as u32).saturating_sub(1), // TODO[cardano]: may be ignored -1
         })
     }
 

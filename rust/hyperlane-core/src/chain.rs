@@ -117,7 +117,6 @@ pub enum KnownHyperlaneDomain {
     // TODO: re-add once we deploy solanadevnet with a new domain ID.
     // /// Sealevel local chain.
     // SealevelTest1 = 13375,
-
     /// Cardano local chain
     CardanoTest1 = 13377,
 }
@@ -218,7 +217,7 @@ impl KnownHyperlaneDomain {
                 Goerli, Mumbai, Fuji, ArbitrumGoerli, OptimismGoerli, BinanceSmartChainTestnet,
                 Alfajores, MoonbaseAlpha, Zksync2Testnet, Sepolia
             ],
-            LocalTestChain: [Test1, Test2, Test3, FuelTest1, SealevelTest1, CardanoTest1],
+            LocalTestChain: [Test1, Test2, Test3, FuelTest1, CardanoTest1],
         })
     }
 
