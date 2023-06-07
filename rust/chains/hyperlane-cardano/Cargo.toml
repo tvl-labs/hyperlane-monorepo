@@ -9,3 +9,5 @@ edition = "2021"
 hyperlane-core = { path = "../../hyperlane-core" }
 async-trait.workspace = true
 url = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }

@@ -35,7 +35,7 @@ pub enum ChainConnectionConf {
     Fuel(h_fuel::ConnectionConf),
     /// Sealevel configuration.
     Sealevel(h_sealevel::ConnectionConf),
-    /// Sealevel configuration.
+    /// Cardano configuration.
     Cardano(h_cardano::ConnectionConf),
 }
 
@@ -46,6 +46,7 @@ enum RawChainConnectionConf {
     Ethereum(h_eth::RawConnectionConf),
     Fuel(h_fuel::RawConnectionConf),
     Sealevel(h_sealevel::RawConnectionConf),
+    Cardano(h_cardano::RawConnectionConf),
     #[serde(other)]
     Unknown,
 }
@@ -61,6 +62,7 @@ impl FromRawConf<'_, RawChainConnectionConf> for ChainConnectionConf {
             Ethereum(r) => Ok(Self::Ethereum(r.parse_config(&cwp.join("connection"))?)),
             Fuel(r) => Ok(Self::Fuel(r.parse_config(&cwp.join("connection"))?)),
             Sealevel(r) => Ok(Self::Sealevel(r.parse_config(&cwp.join("connection"))?)),
+            Cardano(r) => Ok(Self::Cardano(r.parse_config(&cwp.join("connection"))?)),
             Unknown => {
                 Err(eyre!("Unknown chain protocol")).into_config_result(|| cwp.join("protocol"))
             }
@@ -337,7 +339,7 @@ impl ChainConf {
             }
             ChainConnectionConf::Fuel(_) => todo!(),
             ChainConnectionConf::Sealevel(_) => todo!(),
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]: only used by 'scraper' agent.
         }
         .context(ctx)
     }

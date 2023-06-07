@@ -5,9 +5,9 @@
       "name": "CardanoTest1",
       "domain": "13376",
       "addresses": {
-        "mailbox": "",
-        "interchainGasPaymaster": "",
-        "validatorAnnounce": ""
+        "mailbox": "0x0000000000000000000000000000000000000000",
+        "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+        "validatorAnnounce": "0x0000000000000000000000000000000000000000"
       },
       "signer": null,
       "protocol": "cardano",
