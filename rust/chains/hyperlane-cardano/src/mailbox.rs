@@ -56,27 +56,35 @@ impl Debug for CardanoMailbox {
 #[async_trait]
 impl Mailbox for CardanoMailbox {
     async fn tree(&self, lag: Option<NonZeroU64>) -> ChainResult<IncrementalMerkle> {
-        todo!()
+        // TODO[cardano]
+        Ok(IncrementalMerkle::default())
     }
 
     async fn count(&self, lag: Option<NonZeroU64>) -> ChainResult<u32> {
-        todo!()
-    }
-
-    async fn delivered(&self, id: H256) -> ChainResult<bool> {
-        todo!()
+        // TODO[cardano]
+        Ok(0)
     }
 
     async fn latest_checkpoint(&self, lag: Option<NonZeroU64>) -> ChainResult<Checkpoint> {
-        todo!()
+        // TODO[cardano]
+        Ok(Checkpoint {
+            mailbox_domain: self.domain.id(),
+            mailbox_address: self.outbox,
+            index: 0,
+            root: H256::zero(),
+        })
+    }
+
+    async fn delivered(&self, id: H256) -> ChainResult<bool> {
+        todo!("Relayer") // TODO[cardano]
     }
 
     async fn default_ism(&self) -> ChainResult<H256> {
-        todo!()
+        todo!("Relayer") // TODO[cardano]
     }
 
     async fn recipient_ism(&self, recipient: H256) -> ChainResult<H256> {
-        todo!()
+        todo!("Relayer") // TODO[cardano]
     }
 
     async fn process(
@@ -85,7 +93,7 @@ impl Mailbox for CardanoMailbox {
         metadata: &[u8],
         tx_gas_limit: Option<U256>,
     ) -> ChainResult<TxOutcome> {
-        todo!()
+        todo!("Relayer") // TODO[cardano]
     }
 
     async fn process_estimate_costs(
@@ -93,10 +101,10 @@ impl Mailbox for CardanoMailbox {
         message: &HyperlaneMessage,
         metadata: &[u8],
     ) -> ChainResult<TxCostEstimate> {
-        todo!()
+        todo!("Relayer") // TODO[cardano]
     }
 
     fn process_calldata(&self, message: &HyperlaneMessage, metadata: &[u8]) -> Vec<u8> {
-        todo!()
+        todo!("Relayer") // TODO[cardano]
     }
 }

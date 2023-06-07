@@ -32,7 +32,8 @@ impl Indexer<HyperlaneMessage> for CardanoMailboxIndexer {
 #[async_trait]
 impl MessageIndexer for CardanoMailboxIndexer {
     async fn fetch_count_at_tip(&self) -> ChainResult<(u32, u32)> {
-        todo!() // TODO[cardano]
+        // TODO[cardano]
+        Ok((0, 0))
     }
 }
 

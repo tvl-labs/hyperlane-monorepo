@@ -36,7 +36,12 @@ impl ValidatorAnnounce for CardanoValidatorAnnounce {
         &self,
         validators: &[H256],
     ) -> ChainResult<Vec<Vec<String>>> {
-        todo!() // TODO[cardano]
+        assert!(validators.len() == 1);
+        // TODO[cardano]
+        Ok(vec![vec![
+            "file:///tmp/test_cardano_checkpoints_0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+                .to_string(),
+        ]])
     }
 
     async fn announce(
