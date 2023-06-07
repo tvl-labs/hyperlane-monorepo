@@ -1,4 +1,5 @@
 use crate::cardano::signer::Keypair;
+use crate::provider::CardanoProvider;
 use crate::ConnectionConf;
 use async_trait::async_trait;
 use hyperlane_core::accumulator::incremental::IncrementalMerkle;
@@ -9,7 +10,11 @@ use hyperlane_core::{
 use std::fmt::{Debug, Formatter};
 use std::num::NonZeroU64;
 
-pub struct CardanoMailbox {}
+pub struct CardanoMailbox {
+    inbox: H256,
+    outbox: H256,
+    domain: HyperlaneDomain,
+}
 
 impl CardanoMailbox {
     pub fn new(
@@ -17,29 +22,33 @@ impl CardanoMailbox {
         locator: ContractLocator,
         payer: Option<Keypair>,
     ) -> ChainResult<Self> {
-        return Ok(CardanoMailbox {});
+        Ok(CardanoMailbox {
+            domain: locator.domain.clone(),
+            inbox: locator.address,
+            outbox: locator.address,
+        })
     }
 }
 
 impl HyperlaneContract for CardanoMailbox {
     fn address(&self) -> H256 {
-        todo!()
+        self.outbox
     }
 }
 
 impl HyperlaneChain for CardanoMailbox {
     fn domain(&self) -> &HyperlaneDomain {
-        todo!()
+        &self.domain
     }
 
     fn provider(&self) -> Box<dyn HyperlaneProvider> {
-        todo!()
+        Box::new(CardanoProvider::new(self.domain.clone()))
     }
 }
 
 impl Debug for CardanoMailbox {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f, "{:?}", self as &dyn HyperlaneContract)
     }
 }
 
