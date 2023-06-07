@@ -401,7 +401,12 @@ impl ChainConf {
                 let indexer = Box::new(h_sealevel::SealevelMailboxIndexer::new(conf, locator)?);
                 Ok(indexer as Box<dyn MessageIndexer>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(conf) => {
+                let indexer = Box::new(hyperlane_cardano::CardanoMailboxIndexer::new(
+                    conf, locator,
+                )?);
+                Ok(indexer as Box<dyn MessageIndexer>)
+            }
         }
         .context(ctx)
     }
@@ -432,7 +437,10 @@ impl ChainConf {
                 let indexer = Box::new(h_sealevel::SealevelMailboxIndexer::new(conf, locator)?);
                 Ok(indexer as Box<dyn Indexer<H256>>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(conf) => {
+                let indexer = Box::new(h_cardano::CardanoMailboxIndexer::new(conf, locator)?);
+                Ok(indexer as Box<dyn Indexer<H256>>)
+            }
         }
         .context(ctx)
     }
@@ -662,7 +670,7 @@ impl ChainConf {
         self.signer().await
     }
 
-    async fn cardano_signer(&self) -> Result<Option<h_cardano::cardano::signer::Keypair>> {
+    async fn cardano_signer(&self) -> Result<Option<h_cardano::Keypair>> {
         self.signer().await
     }
 

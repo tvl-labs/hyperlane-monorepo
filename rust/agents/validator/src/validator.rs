@@ -53,12 +53,13 @@ impl BaseAgent for Validator {
     type Settings = ValidatorSettings;
 
     async fn from_settings(settings: Self::Settings, metrics: Arc<CoreMetrics>) -> Result<Self>
-    where
-        Self: Sized,
+        where
+            Self: Sized,
     {
         let db = DB::from_path(&settings.db)?;
         let msg_db = HyperlaneRocksDB::new(&settings.origin_chain, db);
 
+        /// TODO[cardano]: checkpoint signer must be Cardano-aware.
         // Intentionally using hyperlane_ethereum for the validator's signer
         let (signer_instance, signer) = SingletonSigner::new(settings.validator.build().await?);
 
@@ -110,7 +111,7 @@ impl BaseAgent for Validator {
                     signer_instance.run().await;
                     Ok(())
                 })
-                .instrument(info_span!("SingletonSigner")),
+                    .instrument(info_span!("SingletonSigner")),
             );
         }
 
@@ -156,7 +157,7 @@ impl Validator {
                 .sync("dispatched_messages", cursor)
                 .await
         })
-        .instrument(info_span!("MailboxMessageSyncer"))
+            .instrument(info_span!("MailboxMessageSyncer"))
     }
 
     async fn run_checkpoint_submitters(&self) -> Vec<Instrumented<JoinHandle<Result<()>>>> {
@@ -190,7 +191,7 @@ impl Validator {
                     .checkpoint_submitter(empty_tree, Some(backfill_target))
                     .await
             })
-            .instrument(info_span!("BackfillCheckpointSubmitter")),
+                .instrument(info_span!("BackfillCheckpointSubmitter")),
         );
 
         tasks.push(

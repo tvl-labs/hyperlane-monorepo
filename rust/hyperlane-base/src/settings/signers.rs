@@ -166,11 +166,11 @@ impl BuildableWithSignerConf for hyperlane_sealevel::solana::signer::keypair::Ke
 }
 
 #[async_trait]
-impl BuildableWithSignerConf for hyperlane_cardano::cardano::signer::Keypair {
+impl BuildableWithSignerConf for hyperlane_cardano::Keypair {
     async fn build(conf: &SignerConf) -> Result<Self, Report> {
         Ok(match conf {
             SignerConf::HexKey { key } => {
-                hyperlane_cardano::cardano::signer::Keypair::from_string(key.to_string().as_str())
+                hyperlane_cardano::Keypair::from_string(key.to_string().as_str())
                     .expect("TODO[cardano]")
             }
             SignerConf::Aws { .. } => bail!("Aws signer is not supported by Cardano"),

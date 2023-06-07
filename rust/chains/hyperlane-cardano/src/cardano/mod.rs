@@ -1,1 +1,3 @@
-pub mod signer;
+pub use signer::*;
+
+mod signer;
