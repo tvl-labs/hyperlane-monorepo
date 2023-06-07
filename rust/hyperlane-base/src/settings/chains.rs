@@ -528,7 +528,10 @@ impl ChainConf {
                 let va = Box::new(h_sealevel::SealevelValidatorAnnounce::new(conf, locator));
                 Ok(va as Box<dyn ValidatorAnnounce>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(conf) => {
+                let va = Box::new(h_cardano::CardanoValidatorAnnounce::new(conf, locator));
+                Ok(va as Box<dyn ValidatorAnnounce>)
+            }
         }
         .context("Building ValidatorAnnounce")
     }
