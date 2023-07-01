@@ -1,19 +1,24 @@
 use crate::cardano::Keypair;
 use crate::provider::CardanoProvider;
+use crate::rpc::OutboxRpc;
 use crate::ConnectionConf;
 use async_trait::async_trait;
 use hyperlane_core::accumulator::incremental::IncrementalMerkle;
+use hyperlane_core::accumulator::TREE_DEPTH;
 use hyperlane_core::{
-    ChainResult, Checkpoint, ContractLocator, HyperlaneChain, HyperlaneContract, HyperlaneDomain,
-    HyperlaneMessage, HyperlaneProvider, Mailbox, TxCostEstimate, TxOutcome, H256, U256,
+    ChainCommunicationError, ChainResult, Checkpoint, ContractLocator, HyperlaneChain,
+    HyperlaneContract, HyperlaneDomain, HyperlaneMessage, HyperlaneProvider, Mailbox,
+    TxCostEstimate, TxOutcome, H256, U256,
 };
 use std::fmt::{Debug, Formatter};
 use std::num::NonZeroU64;
+use std::str::FromStr;
 
 pub struct CardanoMailbox {
     inbox: H256,
     outbox: H256,
     domain: HyperlaneDomain,
+    outbox_rpc: OutboxRpc,
 }
 
 impl CardanoMailbox {
@@ -26,6 +31,7 @@ impl CardanoMailbox {
             domain: locator.domain.clone(),
             inbox: locator.address,
             outbox: locator.address,
+            outbox_rpc: OutboxRpc::new(&conf.url),
         })
     }
 }
@@ -55,8 +61,33 @@ impl Debug for CardanoMailbox {
 #[async_trait]
 impl Mailbox for CardanoMailbox {
     async fn tree(&self, lag: Option<NonZeroU64>) -> ChainResult<IncrementalMerkle> {
-        // TODO[cardano]
-        Ok(IncrementalMerkle::default())
+        assert!(lag.is_none(), "Cardano always returns the finalized result");
+        let finalized_block_number = self
+            .outbox_rpc
+            .get_finalized_block_number()
+            .await
+            .map_err(ChainCommunicationError::from_other)?;
+        let merkle_trees_response = self
+            .outbox_rpc
+            .get_merkle_trees_at_block_number(finalized_block_number)
+            .await
+            .map_err(ChainCommunicationError::from_other)?;
+        let merkle_trees = merkle_trees_response.merkle_trees;
+        if merkle_trees.is_empty() {
+            return Ok(IncrementalMerkle::default());
+        }
+        let last_merkle_tree = merkle_trees.last().unwrap();
+        let branch: [H256; TREE_DEPTH] = last_merkle_tree
+            .branches
+            .iter()
+            .map(
+                |b| H256::from_str(b).unwrap(), /* TODO: better error handling for RPC output */
+            )
+            .collect::<Vec<H256>>()
+            .try_into()
+            .unwrap();
+        let count = last_merkle_tree.count as usize;
+        Ok(IncrementalMerkle::new(branch, count))
     }
 
     async fn count(&self, lag: Option<NonZeroU64>) -> ChainResult<u32> {
