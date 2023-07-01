@@ -1,16 +1,38 @@
 use cardano_rpc::apis::configuration::Configuration;
-use cardano_rpc::apis::default_api::{messages_by_block_range, MessagesByBlockRangeError};
+use cardano_rpc::apis::default_api::{
+    last_finalized_block, merkle_trees_by_block_number, messages_by_block_range,
+    LastFinalizedBlockError, MerkleTreesByBlockNumberError, MessagesByBlockRangeError,
+};
 use cardano_rpc::apis::Error;
+use cardano_rpc::models::{
+    LastFinalizedBlock200Response, MerkleTreesByBlockNumber200Response,
+    MessagesByBlockRange200Response,
+};
 use serde::{Deserialize, Serialize};
 
-const RPC_URL: &str = "http://localhost:4010";
+const RPC_URL: &str = "http://localhost:3000";
 
-pub async fn outbox_rpc_main() -> Result<(), Error<MessagesByBlockRangeError>> {
+pub async fn get_finalized_block_number() -> Result<i32, Error<LastFinalizedBlockError>> {
     let configuration = configuration();
-    let messages = messages_by_block_range(&configuration, 0, 10).await?;
-    println!("{:#?}", messages);
+    last_finalized_block(&configuration).await.map(|r| {
+        r.last_finalized_block
+            .expect("API always returns it or fails")
+    })
+}
 
-    Ok(())
+pub async fn get_messages_by_block_range(
+    from_block: i32,
+    to_block: i32,
+) -> Result<MessagesByBlockRange200Response, Error<MessagesByBlockRangeError>> {
+    let configuration = configuration();
+    messages_by_block_range(&configuration, from_block, to_block).await
+}
+
+pub async fn get_merkle_trees_at_block_number(
+    block_number: i32,
+) -> Result<MerkleTreesByBlockNumber200Response, Error<MerkleTreesByBlockNumberError>> {
+    let configuration = configuration();
+    merkle_trees_by_block_number(&configuration, block_number).await
 }
 
 fn configuration() -> Configuration {
