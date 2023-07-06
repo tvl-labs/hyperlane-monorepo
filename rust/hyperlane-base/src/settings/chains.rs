@@ -647,6 +647,9 @@ impl ChainConf {
             ChainConnectionConf::Sealevel(_) => {
                 Err(eyre!("Sealevel does not support routing ISM yet")).context(ctx)
             }
+            ChainConnectionConf::Cardano(_) => {
+                Err(eyre!("Cardano does not support routing ISM yet")).context(ctx)
+            }
         }
         .context(ctx)
     }
