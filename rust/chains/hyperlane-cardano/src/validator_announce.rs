@@ -1,3 +1,4 @@
+use crate::provider::CardanoProvider;
 use crate::ConnectionConf;
 use async_trait::async_trait;
 use hyperlane_core::{
@@ -6,27 +7,31 @@ use hyperlane_core::{
 };
 
 #[derive(Debug)]
-pub struct CardanoValidatorAnnounce {}
+pub struct CardanoValidatorAnnounce {
+    domain: HyperlaneDomain,
+}
 
 impl CardanoValidatorAnnounce {
     pub fn new(conf: &ConnectionConf, locator: ContractLocator) -> Self {
-        Self {}
+        Self {
+            domain: locator.domain.clone(),
+        }
     }
 }
 
 impl HyperlaneContract for CardanoValidatorAnnounce {
     fn address(&self) -> H256 {
-        todo!() // TODO[cardano]
+        H256::zero() // TODO[cardano]
     }
 }
 
 impl HyperlaneChain for CardanoValidatorAnnounce {
     fn domain(&self) -> &HyperlaneDomain {
-        todo!() // TODO[cardano]
+        &self.domain
     }
 
     fn provider(&self) -> Box<dyn HyperlaneProvider> {
-        todo!() // TODO[cardano]
+        Box::new(CardanoProvider::new(self.domain.clone()))
     }
 }
 
@@ -49,10 +54,17 @@ impl ValidatorAnnounce for CardanoValidatorAnnounce {
         announcement: SignedType<Announcement>,
         tx_gas_limit: Option<U256>,
     ) -> ChainResult<TxOutcome> {
-        todo!() // TODO[cardano]
+        // TODO[cardano]: auto-announcing of validator is probably not needed?
+        Ok(TxOutcome {
+            txid: H256::zero(),
+            executed: false,
+            gas_used: U256::zero(),
+            gas_price: U256::zero(),
+        })
     }
 
     async fn announce_tokens_needed(&self, announcement: SignedType<Announcement>) -> Option<U256> {
-        todo!() // TODO[cardano]
+        // TODO[cardano]: auto-announcing of validator is probably not needed?
+        Some(U256::zero())
     }
 }

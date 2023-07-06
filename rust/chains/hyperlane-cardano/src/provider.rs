@@ -37,6 +37,6 @@ impl HyperlaneProvider for CardanoProvider {
     }
 
     async fn is_contract(&self, _address: &H256) -> ChainResult<bool> {
-        Ok(true)
+        Ok(true) // TODO[cardano]
     }
 }

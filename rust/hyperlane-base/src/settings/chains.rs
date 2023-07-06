@@ -508,7 +508,13 @@ impl ChainConf {
                 ));
                 Ok(indexer as Box<dyn Indexer<InterchainGasPayment>>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+
+            ChainConnectionConf::Cardano(conf) => {
+                let indexer = Box::new(h_cardano::CardanoInterchainGasPaymasterIndexer::new(
+                    conf, locator,
+                ));
+                Ok(indexer as Box<dyn Indexer<InterchainGasPayment>>)
+            }
         }
         .context(ctx)
     }
