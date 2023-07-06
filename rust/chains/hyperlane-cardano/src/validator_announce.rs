@@ -52,10 +52,7 @@ impl ValidatorAnnounce for CardanoValidatorAnnounce {
         todo!() // TODO[cardano]
     }
 
-    async fn announce_tokens_needed(
-        &self,
-        announcement: SignedType<Announcement>,
-    ) -> ChainResult<U256> {
+    async fn announce_tokens_needed(&self, announcement: SignedType<Announcement>) -> Option<U256> {
         todo!() // TODO[cardano]
     }
 }
