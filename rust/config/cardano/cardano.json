@@ -3,7 +3,7 @@
   "chains": {
     "cardanotest1": {
       "name": "CardanoTest1",
-      "domain": "13376",
+      "domain": "13377",
       "addresses": {
         "mailbox": "0x0000000000000000000000000000000000000000",
         "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
@@ -14,11 +14,10 @@
       "finalityBlocks": "0",
       "connection": {
         "type": "http",
-        "url": "http://127.0.0.1:9999"
+        "url": "http://127.0.0.1:3000"
       },
       "index": {
-        "from": "1",
-        "mode": "sequence"
+        "from": "1"
       }
     }
   },
