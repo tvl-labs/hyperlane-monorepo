@@ -95,12 +95,23 @@ impl Mailbox for CardanoMailbox {
     }
 
     async fn latest_checkpoint(&self, lag: Option<NonZeroU64>) -> ChainResult<Checkpoint> {
-        self.tree(lag).await.map(|t| Checkpoint {
+        let tree = self.tree(lag).await?;
+        let count: u32 = tree
+            .count()
+            .try_into()
+            .map_err(ChainCommunicationError::from_other)?;
+        let root = tree.root();
+        let index = count.checked_sub(1).ok_or_else(|| {
+            ChainCommunicationError::from_contract_error_str(
+                "Outbox is empty, cannot compute checkpoint",
+            )
+        })?;
+        return Ok(Checkpoint {
             mailbox_domain: self.domain.id(),
             mailbox_address: self.outbox,
-            root: t.root(),
-            index: (t.count() as u32).saturating_sub(1), // TODO[cardano]: may be ignored -1
-        })
+            root,
+            index,
+        });
     }
 
     async fn delivered(&self, id: H256) -> ChainResult<bool> {
