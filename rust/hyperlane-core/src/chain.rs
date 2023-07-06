@@ -118,7 +118,7 @@ pub enum KnownHyperlaneDomain {
     // /// Sealevel local chain.
     // SealevelTest1 = 13375,
     /// Cardano local chain
-    CardanoTest1 = 13377,
+    CardanoTest1 = 112233,
 }
 
 #[derive(Clone)]

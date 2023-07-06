@@ -3,7 +3,7 @@
   "chains": {
     "cardanotest1": {
       "name": "CardanoTest1",
-      "domain": "13377",
+      "domain": "112233",
       "addresses": {
         "mailbox": "0x0000000000000000000000000000000000000000",
         "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
