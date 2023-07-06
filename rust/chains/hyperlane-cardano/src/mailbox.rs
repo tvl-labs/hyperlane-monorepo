@@ -16,7 +16,7 @@ use std::str::FromStr;
 
 pub struct CardanoMailbox {
     inbox: H256,
-    outbox: H256,
+    pub outbox: H256,
     domain: HyperlaneDomain,
     outbox_rpc: OutboxRpc,
 }

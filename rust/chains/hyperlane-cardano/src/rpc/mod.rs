@@ -1,3 +1,5 @@
+pub mod conversion;
+
 use cardano_rpc::apis::configuration::Configuration;
 use cardano_rpc::apis::default_api::{
     last_finalized_block, merkle_trees_by_block_number, messages_by_block_range,
