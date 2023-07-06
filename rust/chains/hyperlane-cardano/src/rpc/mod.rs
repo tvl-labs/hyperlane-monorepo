@@ -7,6 +7,7 @@ use cardano_rpc::apis::Error;
 use cardano_rpc::models::{MerkleTreesByBlockNumber200Response, MessagesByBlockRange200Response};
 use url::Url;
 
+#[derive(Debug)]
 pub struct OutboxRpc(Configuration);
 
 impl OutboxRpc {

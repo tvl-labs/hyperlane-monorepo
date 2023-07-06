@@ -1,20 +1,29 @@
-use crate::ConnectionConf;
+use crate::rpc::OutboxRpc;
+use crate::{CardanoMailbox, ConnectionConf};
 use async_trait::async_trait;
 use hyperlane_core::{
-    ChainResult, ContractLocator, HyperlaneMessage, IndexRange, Indexer, LogMeta, MessageIndexer,
-    H256,
+    ChainResult, ContractLocator, HyperlaneMessage, IndexRange, Indexer, LogMeta, Mailbox,
+    MessageIndexer, H256,
 };
 
 #[derive(Debug)]
-pub struct CardanoMailboxIndexer {}
+pub struct CardanoMailboxIndexer {
+    outbox_rpc: OutboxRpc,
+    mailbox: CardanoMailbox,
+}
 
 impl CardanoMailboxIndexer {
     pub fn new(conf: &ConnectionConf, locator: ContractLocator) -> ChainResult<Self> {
-        Ok(Self {})
+        let outbox_rpc = OutboxRpc::new(&conf.url);
+        let mailbox = CardanoMailbox::new(conf, locator, None)?;
+        Ok(Self {
+            outbox_rpc,
+            mailbox,
+        })
     }
 
     async fn get_finalized_block_number(&self) -> ChainResult<u32> {
-        todo!() // TODO[cardano]
+        self.mailbox.finalized_block_number().await
     }
 }
 
@@ -32,8 +41,10 @@ impl Indexer<HyperlaneMessage> for CardanoMailboxIndexer {
 #[async_trait]
 impl MessageIndexer for CardanoMailboxIndexer {
     async fn fetch_count_at_tip(&self) -> ChainResult<(u32, u32)> {
-        // TODO[cardano]
-        Ok((0, 0))
+        self.mailbox
+            .tree_and_tip(None)
+            .await
+            .map(|(tree, tip)| (tree.count() as u32, tip))
     }
 }
 
