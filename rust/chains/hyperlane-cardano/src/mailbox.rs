@@ -49,18 +49,13 @@ impl CardanoMailbox {
         lag: Option<NonZeroU64>,
     ) -> ChainResult<(IncrementalMerkle, u32)> {
         assert!(lag.is_none(), "Cardano always returns the finalized result");
-        let finalized_block_number = self.finalized_block_number().await?;
-        let merkle_trees_response = self
+        let merkle_tree_response = self
             .outbox_rpc
-            .get_merkle_trees_at_block_number(finalized_block_number)
+            .get_latest_merkle_tree()
             .await
             .map_err(ChainCommunicationError::from_other)?;
-        let merkle_trees = merkle_trees_response.merkle_trees;
-        if merkle_trees.is_empty() {
-            return Ok((IncrementalMerkle::default(), finalized_block_number));
-        }
-        let last_merkle_tree = merkle_trees.last().unwrap();
-        let branch: [H256; TREE_DEPTH] = last_merkle_tree
+        let merkle_tree = merkle_tree_response.merkle_tree;
+        let branch: [H256; TREE_DEPTH] = merkle_tree
             .branches
             .iter()
             .map(
@@ -69,10 +64,10 @@ impl CardanoMailbox {
             .collect::<Vec<H256>>()
             .try_into()
             .unwrap();
-        let count = last_merkle_tree.count as usize;
+        let count = merkle_tree.count as usize;
         Ok((
             IncrementalMerkle::new(branch, count),
-            finalized_block_number,
+            merkle_tree_response.block_number as u32,
         ))
     }
 }

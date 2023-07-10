@@ -1,13 +1,13 @@
-pub mod conversion;
-
 use cardano_rpc::apis::configuration::Configuration;
 use cardano_rpc::apis::default_api::{
-    last_finalized_block, merkle_trees_by_block_number, messages_by_block_range,
-    LastFinalizedBlockError, MerkleTreesByBlockNumberError, MessagesByBlockRangeError,
+    last_finalized_block, merkle_tree, messages_by_block_range, LastFinalizedBlockError,
+    MerkleTreeError, MessagesByBlockRangeError,
 };
 use cardano_rpc::apis::Error;
-use cardano_rpc::models::{MerkleTreesByBlockNumber200Response, MessagesByBlockRange200Response};
+use cardano_rpc::models::{MerkleTree200Response, MessagesByBlockRange200Response};
 use url::Url;
+
+pub mod conversion;
 
 #[derive(Debug)]
 pub struct OutboxRpc(Configuration);
@@ -38,10 +38,9 @@ impl OutboxRpc {
         messages_by_block_range(&self.0, from_block as i32, to_block as i32).await
     }
 
-    pub async fn get_merkle_trees_at_block_number(
+    pub async fn get_latest_merkle_tree(
         &self,
-        block_number: u32,
-    ) -> Result<MerkleTreesByBlockNumber200Response, Error<MerkleTreesByBlockNumberError>> {
-        merkle_trees_by_block_number(&self.0, block_number as i32).await
+    ) -> Result<MerkleTree200Response, Error<MerkleTreeError>> {
+        merkle_tree(&self.0).await
     }
 }

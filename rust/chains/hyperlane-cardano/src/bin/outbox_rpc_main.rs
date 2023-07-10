@@ -1,7 +1,3 @@
-use cardano_rpc::apis::default_api::MessagesByBlockRangeError;
-use cardano_rpc::apis::Error;
-use url::Url;
-
 use hyperlane_cardano::rpc::OutboxRpc;
 use hyperlane_cardano::{CardanoMailbox, CardanoMailboxIndexer, ConnectionConf};
 use hyperlane_core::{
@@ -14,12 +10,9 @@ async fn main() -> ChainResult<()> {
     let outbox_rpc = OutboxRpc::new(&"http://localhost:3000".parse().unwrap());
     let finalized_block_number = outbox_rpc.get_finalized_block_number().await.unwrap();
     let messages = outbox_rpc.get_messages_by_block_range(0, 10).await.unwrap();
-    let merkle_trees_at_block_number = outbox_rpc
-        .get_merkle_trees_at_block_number(8)
-        .await
-        .unwrap();
+    let merkle_tree = outbox_rpc.get_latest_merkle_tree().await.unwrap();
     println!("{:?}", finalized_block_number);
-    println!("{:?}", merkle_trees_at_block_number.merkle_trees);
+    println!("{:?}", merkle_tree);
     println!("{:?}", messages);
 
     let locator = ContractLocator {
