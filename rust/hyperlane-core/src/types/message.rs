@@ -1,6 +1,7 @@
 use sha3::{digest::Update, Digest, Keccak256};
 use std::fmt::{Debug, Display, Formatter};
 
+use crate::accumulator::Blake2b256;
 use crate::utils::{fmt_address_for_domain, fmt_domain};
 use crate::{Decode, Encode, HyperlaneProtocolError, H256};
 
@@ -151,7 +152,11 @@ impl Decode for HyperlaneMessage {
 impl HyperlaneMessage {
     /// Convert the message to a message id
     pub fn id(&self) -> H256 {
-        H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
+        if std::env::var("HASH_BLAKE2B").is_ok() {
+            H256::from_slice(Blake2b256::new().chain(self.to_vec()).finalize().as_slice())
+        } else {
+            H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
+        }
     }
 
     /* FIXME don't need?
