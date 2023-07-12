@@ -175,3 +175,35 @@ impl HyperlaneMessage {
         }
     */
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use hex::FromHex;
+    use std::str::FromStr;
+
+    #[test]
+    fn it_calculates_message_id() {
+        let message = HyperlaneMessage {
+            version: 0,
+            nonce: 42,
+            origin: 112233,
+            sender: H256::from_str(
+                "0x0000000000000000000000000000000000000000000000000000000000000CA1",
+            )
+            .unwrap(),
+            destination: 43113,
+            recipient: H256::from_str(
+                "0x0000000000000000000000000000000000000000000000000000000000000EF1",
+            )
+            .unwrap(),
+            body: Vec::from_hex("abcdef").unwrap(),
+        };
+        let id = message.id();
+        assert_eq!(
+            id,
+            H256::from_str("0x4effd736ec49d8ed6cecdc39a76be0ab896c7dcae94cd2d95d797b55ec2edeab")
+                .unwrap()
+        );
+    }
+}
