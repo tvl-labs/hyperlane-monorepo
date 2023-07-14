@@ -15,5 +15,4 @@ hex = "0.4.3"
 tracing = { workspace = true }
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
-# TODO[cardano]: change path.
-cardano-rpc = { path = "/Users/serejke/Documents/tvl/hyperlane-cardano/rpc/generated-sources/cardano-rpc-rust-client" }
+hyperlane-cardano-rpc-rust-client = "1.0.0"

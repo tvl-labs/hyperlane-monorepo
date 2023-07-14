@@ -1,5 +1,5 @@
-use cardano_rpc::models::MessagesByBlockRange200ResponseMessagesInnerMessage;
 use hex::FromHex;
+use hyperlane_cardano_rpc_rust_client::models::MessagesByBlockRange200ResponseMessagesInnerMessage;
 use hyperlane_core::{HyperlaneMessage, H256};
 use std::str::FromStr;
 

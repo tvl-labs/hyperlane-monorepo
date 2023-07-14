@@ -1,10 +1,12 @@
-use cardano_rpc::apis::configuration::Configuration;
-use cardano_rpc::apis::default_api::{
+use hyperlane_cardano_rpc_rust_client::apis::configuration::Configuration;
+use hyperlane_cardano_rpc_rust_client::apis::default_api::{
     last_finalized_block, merkle_tree, messages_by_block_range, LastFinalizedBlockError,
     MerkleTreeError, MessagesByBlockRangeError,
 };
-use cardano_rpc::apis::Error;
-use cardano_rpc::models::{MerkleTree200Response, MessagesByBlockRange200Response};
+use hyperlane_cardano_rpc_rust_client::apis::Error;
+use hyperlane_cardano_rpc_rust_client::models::{
+    MerkleTree200Response, MessagesByBlockRange200Response,
+};
 use url::Url;
 
 pub mod conversion;

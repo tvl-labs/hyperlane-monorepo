@@ -694,18 +694,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cardano-rpc"
-version = "1.0.0"
-dependencies = [
- "reqwest",
- "serde",
- "serde_derive",
- "serde_json",
- "url",
- "uuid 1.3.4",
-]
-
-[[package]]
 name = "cargo-platform"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3013,8 +3001,8 @@ name = "hyperlane-cardano"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "cardano-rpc",
  "hex 0.4.3",
+ "hyperlane-cardano-rpc-rust-client",
  "hyperlane-core",
  "reqwest",
  "serde",
@@ -3022,6 +3010,20 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "hyperlane-cardano-rpc-rust-client"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24962ecddc0c2f92edcf80485e526e6852f52db68d501889bfb831b57aaa3ede"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "url",
+ "uuid 1.3.4",
 ]
 
 [[package]]
