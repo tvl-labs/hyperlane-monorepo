@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 
 use crate::accumulator::Blake2b256;
 use crate::utils::{fmt_address_for_domain, fmt_domain};
-use crate::{Decode, Encode, HyperlaneProtocolError, H256};
+use crate::{Decode, Encode, HyperlaneProtocolError, KnownHyperlaneDomain, H256};
 
 const HYPERLANE_MESSAGE_PREFIX_LEN: usize = 77;
 
@@ -156,11 +156,12 @@ impl HyperlaneMessage {
     }
 
     pub fn id_for_merkle_tree(&self) -> H256 {
-        if std::env::var("MESSAGE_ID_FOR_MERKLE_TREE_HASH_BLAKE2B").is_ok() {
-            H256::from_slice(Blake2b256::new().chain(self.to_vec()).finalize().as_slice())
-        } else {
-            H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
+        // TODO[cardano]: a better condition.
+        let origin_domain = KnownHyperlaneDomain::try_from(self.origin);
+        if origin_domain.is_ok() && origin_domain.unwrap() == KnownHyperlaneDomain::CardanoTest1 {
+            return H256::from_slice(Blake2b256::new().chain(self.to_vec()).finalize().as_slice());
         }
+        H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
     }
 
     /* FIXME don't need?
