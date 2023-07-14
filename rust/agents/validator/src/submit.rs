@@ -85,11 +85,12 @@ impl ValidatorSubmitter {
                 .retrieve_message_by_nonce(tree.count() as u32)?
             {
                 debug!(index = message.nonce, "Ingesting leaf to tree");
-                let message_id = message.id();
-                tree.ingest(message_id);
+                let message_id_for_merkle_tree = message.id_for_merkle_tree();
+                tree.ingest(message_id_for_merkle_tree);
 
                 let checkpoint = self.checkpoint(&tree);
 
+                let message_id = message.id();
                 checkpoint_queue.push(CheckpointWithMessageId {
                     checkpoint,
                     message_id,

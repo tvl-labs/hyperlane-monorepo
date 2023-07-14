@@ -152,7 +152,11 @@ impl Decode for HyperlaneMessage {
 impl HyperlaneMessage {
     /// Convert the message to a message id
     pub fn id(&self) -> H256 {
-        if std::env::var("HASH_BLAKE2B").is_ok() {
+        H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
+    }
+
+    pub fn id_for_merkle_tree(&self) -> H256 {
+        if std::env::var("MESSAGE_ID_FOR_MERKLE_TREE_HASH_BLAKE2B").is_ok() {
             H256::from_slice(Blake2b256::new().chain(self.to_vec()).finalize().as_slice())
         } else {
             H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())

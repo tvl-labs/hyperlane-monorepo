@@ -20,7 +20,7 @@ const EMPTY_SLICE: &[H256] = &[];
 pub type Blake2b256 = Blake2b<U32>;
 
 pub(super) fn hash_concat(left: impl AsRef<[u8]>, right: impl AsRef<[u8]>) -> H256 {
-    if std::env::var("HASH_BLAKE2B").is_ok() {
+    if std::env::var("MERKLE_TREE_HASH_BLAKE2B").is_ok() {
         H256::from_slice(
             Blake2b256::new()
                 .chain(left)
