@@ -1,13 +1,18 @@
+use hex::ToHex;
 use hyperlane_cardano_rpc_rust_client::apis::configuration::Configuration;
 use hyperlane_cardano_rpc_rust_client::apis::default_api::{
-    last_finalized_block, merkle_tree, messages_by_block_range, LastFinalizedBlockError,
-    MerkleTreeError, MessagesByBlockRangeError,
+    get_validator_storage_locations, last_finalized_block, merkle_tree, messages_by_block_range,
+    GetValidatorStorageLocationsError, LastFinalizedBlockError, MerkleTreeError,
+    MessagesByBlockRangeError,
 };
 use hyperlane_cardano_rpc_rust_client::apis::Error;
 use hyperlane_cardano_rpc_rust_client::models::{
+    GetValidatorStorageLocations200Response, GetValidatorStorageLocationsRequest,
     MerkleTree200Response, MessagesByBlockRange200Response,
 };
 use url::Url;
+
+use hyperlane_core::H256;
 
 pub mod conversion;
 
@@ -44,5 +49,28 @@ impl OutboxRpc {
         &self,
     ) -> Result<MerkleTree200Response, Error<MerkleTreeError>> {
         merkle_tree(&self.0).await
+    }
+
+    pub async fn get_validator_storage_locations(
+        &self,
+        validator_addresses: &[H256],
+    ) -> Result<Vec<Vec<String>>, Error<GetValidatorStorageLocationsError>> {
+        let validator_addresses: Vec<String> = validator_addresses
+            .iter()
+            .map(|v| format!("0x{}", v.encode_hex::<String>()))
+            .collect();
+        let validator_storage_locations = get_validator_storage_locations(
+            &self.0,
+            GetValidatorStorageLocationsRequest {
+                validator_addresses,
+            },
+        )
+        .await?;
+        let result = validator_storage_locations
+            .validator_storage_locations
+            .iter()
+            .map(|vs| vec![String::from(&vs.storage_location)])
+            .collect();
+        Ok(result)
     }
 }

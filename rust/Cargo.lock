@@ -3014,9 +3014,9 @@ dependencies = [
 
 [[package]]
 name = "hyperlane-cardano-rpc-rust-client"
-version = "1.0.0"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24962ecddc0c2f92edcf80485e526e6852f52db68d501889bfb831b57aaa3ede"
+checksum = "c13b25579389d702cd284f6025913105363f310cf1d40a6a3b84c5a80ede5673"
 dependencies = [
  "reqwest",
  "serde",

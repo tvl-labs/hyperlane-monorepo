@@ -1,19 +1,25 @@
 use crate::provider::CardanoProvider;
+use crate::rpc::OutboxRpc;
 use crate::ConnectionConf;
 use async_trait::async_trait;
+use hex::ToHex;
 use hyperlane_core::{
-    Announcement, ChainResult, ContractLocator, HyperlaneChain, HyperlaneContract, HyperlaneDomain,
-    HyperlaneProvider, SignedType, TxOutcome, ValidatorAnnounce, H256, U256,
+    Announcement, ChainCommunicationError, ChainResult, ContractLocator, HyperlaneChain,
+    HyperlaneContract, HyperlaneDomain, HyperlaneProvider, SignedType, TxOutcome,
+    ValidatorAnnounce, H256, U256,
 };
 
 #[derive(Debug)]
 pub struct CardanoValidatorAnnounce {
+    outbox_rpc: OutboxRpc,
     domain: HyperlaneDomain,
 }
 
 impl CardanoValidatorAnnounce {
     pub fn new(conf: &ConnectionConf, locator: ContractLocator) -> Self {
+        let outbox_rpc = OutboxRpc::new(&conf.url);
         Self {
+            outbox_rpc,
             domain: locator.domain.clone(),
         }
     }
@@ -41,12 +47,10 @@ impl ValidatorAnnounce for CardanoValidatorAnnounce {
         &self,
         validators: &[H256],
     ) -> ChainResult<Vec<Vec<String>>> {
-        assert!(validators.len() == 1);
-        // TODO[cardano]
-        Ok(vec![vec![
-            "file:///tmp/test_cardano_checkpoints_0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
-                .to_string(),
-        ]])
+        self.outbox_rpc
+            .get_validator_storage_locations(validators)
+            .await
+            .map_err(ChainCommunicationError::from_other)
     }
 
     async fn announce(

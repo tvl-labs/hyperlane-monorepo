@@ -1,9 +1,12 @@
 use hyperlane_cardano::rpc::OutboxRpc;
-use hyperlane_cardano::{CardanoMailbox, CardanoMailboxIndexer, ConnectionConf};
+use hyperlane_cardano::{
+    CardanoMailbox, CardanoMailboxIndexer, CardanoValidatorAnnounce, ConnectionConf,
+};
 use hyperlane_core::{
     ChainResult, ContractLocator, HyperlaneDomain, HyperlaneMessage, IndexRange, Indexer,
-    KnownHyperlaneDomain, Mailbox, H256,
+    KnownHyperlaneDomain, Mailbox, ValidatorAnnounce, H256,
 };
+use std::str::FromStr;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ChainResult<()> {
@@ -36,6 +39,18 @@ async fn main() -> ChainResult<()> {
     .await
     .unwrap();
     println!("{:?}", finalized_block_number);
+
+    let validator_announce = CardanoValidatorAnnounce::new(&conf, locator.clone());
+    let validator_addresses =
+        [
+            H256::from_str("0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8")
+                .unwrap(),
+        ];
+    let validator_storage_locations = validator_announce
+        .get_announced_storage_locations(&validator_addresses)
+        .await
+        .unwrap();
+    println!("{:?}", validator_storage_locations);
 
     Ok(())
 }
