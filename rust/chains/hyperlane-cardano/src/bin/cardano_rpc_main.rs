@@ -1,4 +1,4 @@
-use hyperlane_cardano::rpc::OutboxRpc;
+use hyperlane_cardano::rpc::CardanoRpc;
 use hyperlane_cardano::{
     CardanoMailbox, CardanoMailboxIndexer, CardanoValidatorAnnounce, ConnectionConf,
 };
@@ -10,10 +10,13 @@ use std::str::FromStr;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ChainResult<()> {
-    let outbox_rpc = OutboxRpc::new(&"http://localhost:3000".parse().unwrap());
-    let finalized_block_number = outbox_rpc.get_finalized_block_number().await.unwrap();
-    let messages = outbox_rpc.get_messages_by_block_range(0, 10).await.unwrap();
-    let merkle_tree = outbox_rpc.get_latest_merkle_tree().await.unwrap();
+    let cardano_rpc = CardanoRpc::new(&"http://localhost:3000".parse().unwrap());
+    let finalized_block_number = cardano_rpc.get_finalized_block_number().await.unwrap();
+    let messages = cardano_rpc
+        .get_messages_by_block_range(0, 10)
+        .await
+        .unwrap();
+    let merkle_tree = cardano_rpc.get_latest_merkle_tree().await.unwrap();
     println!("{:?}", finalized_block_number);
     println!("{:?}", merkle_tree);
     println!("{:?}", messages);

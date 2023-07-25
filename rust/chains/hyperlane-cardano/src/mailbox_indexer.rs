@@ -1,5 +1,5 @@
 use crate::rpc::conversion::FromRpc;
-use crate::rpc::OutboxRpc;
+use crate::rpc::CardanoRpc;
 use crate::{CardanoMailbox, ConnectionConf};
 use async_trait::async_trait;
 use hex::FromHex;
@@ -11,16 +11,16 @@ use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct CardanoMailboxIndexer {
-    outbox_rpc: OutboxRpc,
+    cardano_rpc: CardanoRpc,
     mailbox: CardanoMailbox,
 }
 
 impl CardanoMailboxIndexer {
     pub fn new(conf: &ConnectionConf, locator: ContractLocator) -> ChainResult<Self> {
-        let outbox_rpc = OutboxRpc::new(&conf.url);
+        let cardano_rpc = CardanoRpc::new(&conf.url);
         let mailbox = CardanoMailbox::new(conf, locator, None)?;
         Ok(Self {
-            outbox_rpc,
+            cardano_rpc,
             mailbox,
         })
     }
@@ -49,7 +49,7 @@ impl Indexer<HyperlaneMessage> for CardanoMailboxIndexer {
         );
 
         let response = self
-            .outbox_rpc
+            .cardano_rpc
             .get_messages_by_block_range(from, to)
             .await
             .map_err(ChainCommunicationError::from_other)?;

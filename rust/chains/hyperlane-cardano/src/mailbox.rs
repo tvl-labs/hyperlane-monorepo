@@ -1,6 +1,6 @@
 use crate::cardano::Keypair;
 use crate::provider::CardanoProvider;
-use crate::rpc::OutboxRpc;
+use crate::rpc::CardanoRpc;
 use crate::ConnectionConf;
 use async_trait::async_trait;
 use hyperlane_core::accumulator::incremental::IncrementalMerkle;
@@ -18,7 +18,7 @@ pub struct CardanoMailbox {
     inbox: H256,
     pub outbox: H256,
     domain: HyperlaneDomain,
-    outbox_rpc: OutboxRpc,
+    cardano_rpc: CardanoRpc,
 }
 
 impl CardanoMailbox {
@@ -31,13 +31,13 @@ impl CardanoMailbox {
             domain: locator.domain.clone(),
             inbox: locator.address,
             outbox: locator.address,
-            outbox_rpc: OutboxRpc::new(&conf.url),
+            cardano_rpc: CardanoRpc::new(&conf.url),
         })
     }
 
     pub async fn finalized_block_number(&self) -> Result<u32, ChainCommunicationError> {
         let finalized_block_number = self
-            .outbox_rpc
+            .cardano_rpc
             .get_finalized_block_number()
             .await
             .map_err(ChainCommunicationError::from_other)?;
@@ -50,7 +50,7 @@ impl CardanoMailbox {
     ) -> ChainResult<(IncrementalMerkle, u32)> {
         assert!(lag.is_none(), "Cardano always returns the finalized result");
         let merkle_tree_response = self
-            .outbox_rpc
+            .cardano_rpc
             .get_latest_merkle_tree()
             .await
             .map_err(ChainCommunicationError::from_other)?;

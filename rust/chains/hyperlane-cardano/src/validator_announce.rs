@@ -1,5 +1,5 @@
 use crate::provider::CardanoProvider;
-use crate::rpc::OutboxRpc;
+use crate::rpc::CardanoRpc;
 use crate::ConnectionConf;
 use async_trait::async_trait;
 use hex::ToHex;
@@ -11,15 +11,15 @@ use hyperlane_core::{
 
 #[derive(Debug)]
 pub struct CardanoValidatorAnnounce {
-    outbox_rpc: OutboxRpc,
+    cardano_rpc: CardanoRpc,
     domain: HyperlaneDomain,
 }
 
 impl CardanoValidatorAnnounce {
     pub fn new(conf: &ConnectionConf, locator: ContractLocator) -> Self {
-        let outbox_rpc = OutboxRpc::new(&conf.url);
+        let cardano_rpc = CardanoRpc::new(&conf.url);
         Self {
-            outbox_rpc,
+            cardano_rpc,
             domain: locator.domain.clone(),
         }
     }
@@ -47,7 +47,7 @@ impl ValidatorAnnounce for CardanoValidatorAnnounce {
         &self,
         validators: &[H256],
     ) -> ChainResult<Vec<Vec<String>>> {
-        self.outbox_rpc
+        self.cardano_rpc
             .get_validator_storage_locations(validators)
             .await
             .map_err(ChainCommunicationError::from_other)

@@ -17,10 +17,10 @@ use hyperlane_core::H256;
 pub mod conversion;
 
 #[derive(Debug)]
-pub struct OutboxRpc(Configuration);
+pub struct CardanoRpc(Configuration);
 
-impl OutboxRpc {
-    pub fn new(url: &Url) -> OutboxRpc {
+impl CardanoRpc {
+    pub fn new(url: &Url) -> CardanoRpc {
         let client = reqwest::Client::builder().build().unwrap();
         Self(Configuration {
             base_path: url.to_string().trim_end_matches("/").to_string(),
