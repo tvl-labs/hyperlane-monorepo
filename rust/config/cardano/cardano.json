@@ -14,7 +14,7 @@
       "finalityBlocks": "0",
       "connection": {
         "type": "http",
-        "url": "http://127.0.0.1:3000"
+        "url": "http://127.0.0.1:3001"
       },
       "index": {
         "from": "1"

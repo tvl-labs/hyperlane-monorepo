@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use blake2::Blake2b512;
 use sha3::{digest::Update, Digest, Keccak256};
 
 use crate::{KnownHyperlaneDomain, H256};
@@ -21,6 +22,18 @@ pub fn strip_0x_prefix(s: &str) -> &str {
 pub fn domain_hash(address: H256, domain: impl Into<u32>) -> H256 {
     H256::from_slice(
         Keccak256::new()
+            .chain(domain.into().to_be_bytes())
+            .chain(address)
+            .chain("HYPERLANE")
+            .finalize()
+            .as_slice(),
+    )
+}
+
+/// Same with `domain_hash` but with Blake2b over Keccak256 for Cardano
+pub fn domain_hash_blake2b(address: H256, domain: impl Into<u32>) -> H256 {
+    H256::from_slice(
+        Blake2b512::new()
             .chain(domain.into().to_be_bytes())
             .chain(address)
             .chain("HYPERLANE")

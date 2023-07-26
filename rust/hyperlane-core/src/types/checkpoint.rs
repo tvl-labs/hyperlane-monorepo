@@ -1,10 +1,11 @@
+use blake2::Blake2b512;
 use derive_more::Deref;
 use ethers_core::types::{Address, Signature};
 use serde::{Deserialize, Serialize};
 use sha3::{digest::Update, Digest, Keccak256};
 use std::fmt::Debug;
 
-use crate::{utils::domain_hash, Signable, SignedType, H256};
+use crate::{utils::domain_hash, utils::domain_hash_blake2b, Signable, SignedType, H256};
 
 /// An Hyperlane checkpoint
 #[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize, Debug)]
@@ -27,6 +28,14 @@ pub struct CheckpointWithMessageId {
     pub checkpoint: Checkpoint,
     /// hash of message emitted from mailbox checkpoint.index
     pub message_id: H256,
+}
+
+/// A Hyperlane checkpoint with message id that is hashed with Blake2b for Cardano
+#[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize, Debug, Deref)]
+pub struct CheckpointWithMessageIdBlake2b {
+    /// existing Hyperlane checkpoint struct
+    #[deref]
+    pub checkpoint: CheckpointWithMessageId,
 }
 
 impl Signable for Checkpoint {
@@ -64,10 +73,30 @@ impl Signable for CheckpointWithMessageId {
     }
 }
 
+impl Signable for CheckpointWithMessageIdBlake2b {
+    /// The equivalence of `CheckpointWithMessageId` but with Blake2b over Keccak256 for Cardano
+    fn signing_hash(&self) -> H256 {
+        H256::from_slice(
+            Blake2b512::new()
+                .chain(domain_hash_blake2b(
+                    self.mailbox_address,
+                    self.mailbox_domain,
+                ))
+                .chain(self.root)
+                .chain(self.index.to_be_bytes())
+                .chain(self.message_id)
+                .finalize()
+                .as_slice(),
+        )
+    }
+}
+
 /// Signed checkpoint
 pub type SignedCheckpoint = SignedType<Checkpoint>;
 /// Signed (checkpoint, messageId) tuple
 pub type SignedCheckpointWithMessageId = SignedType<CheckpointWithMessageId>;
+/// Signed checkpoint with Blake2b for Cardano
+pub type SignedCheckpointWithMessageIdBlake2b = SignedType<CheckpointWithMessageIdBlake2b>;
 
 /// An individual signed checkpoint with the recovered signer
 #[derive(Clone, Debug)]
