@@ -14,7 +14,10 @@ use rusoto_s3::{GetObjectError, GetObjectRequest, PutObjectRequest, S3Client, S3
 use tokio::time::timeout;
 
 use crate::settings::aws_credentials::AwsChainCredentialsProvider;
-use hyperlane_core::{SignedAnnouncement, SignedCheckpoint, SignedCheckpointWithMessageId};
+use hyperlane_core::{
+    SignedAnnouncement, SignedCheckpoint, SignedCheckpointWithMessageId,
+    SignedCheckpointWithMessageIdBlake2b,
+};
 
 use crate::CheckpointSyncer;
 
@@ -128,6 +131,10 @@ impl S3Storage {
         format!("checkpoint_{index}_with_id.json")
     }
 
+    fn checkpoint_blake2b_key(index: u32) -> String {
+        format!("checkpoint_{index}_with_id_blake_2b.json")
+    }
+
     fn index_key() -> String {
         "checkpoint_latest_index.json".to_owned()
     }
@@ -195,6 +202,19 @@ impl CheckpointSyncer for S3Storage {
         let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
         self.write_to_bucket(
             S3Storage::checkpoint_key(signed_checkpoint.value.index),
+            &serialized_checkpoint,
+        )
+        .await?;
+        Ok(())
+    }
+
+    async fn write_checkpoint_blake2b(
+        &self,
+        signed_checkpoint: &SignedCheckpointWithMessageIdBlake2b,
+    ) -> Result<()> {
+        let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
+        self.write_to_bucket(
+            S3Storage::checkpoint_blake2b_key(signed_checkpoint.value.index),
             &serialized_checkpoint,
         )
         .await?;
