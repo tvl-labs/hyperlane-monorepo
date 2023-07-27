@@ -1,4 +1,5 @@
-use blake2::Blake2b512;
+use blake2::digest::consts::U32;
+use blake2::Blake2b;
 use derive_more::Deref;
 use ethers_core::types::{Address, Signature};
 use serde::{Deserialize, Serialize};
@@ -73,11 +74,12 @@ impl Signable for CheckpointWithMessageId {
     }
 }
 
+type Blake2b256 = Blake2b<U32>;
 impl Signable for CheckpointWithMessageIdBlake2b {
     /// The equivalence of `CheckpointWithMessageId` but with Blake2b over Keccak256 for Cardano
     fn signing_hash(&self) -> H256 {
         H256::from_slice(
-            Blake2b512::new()
+            Blake2b256::new()
                 .chain(domain_hash_blake2b(
                     self.mailbox_address,
                     self.mailbox_domain,
