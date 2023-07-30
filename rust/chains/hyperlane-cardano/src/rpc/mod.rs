@@ -1,14 +1,14 @@
 use hex::ToHex;
 use hyperlane_cardano_rpc_rust_client::apis::configuration::Configuration;
 use hyperlane_cardano_rpc_rust_client::apis::default_api::{
-    get_validator_storage_locations, last_finalized_block, merkle_tree, messages_by_block_range,
-    GetValidatorStorageLocationsError, LastFinalizedBlockError, MerkleTreeError,
-    MessagesByBlockRangeError,
+    get_validator_storage_locations, inbox_ism_parameters, last_finalized_block, merkle_tree,
+    messages_by_block_range, GetValidatorStorageLocationsError, InboxIsmParametersError,
+    LastFinalizedBlockError, MerkleTreeError, MessagesByBlockRangeError,
 };
 use hyperlane_cardano_rpc_rust_client::apis::Error;
 use hyperlane_cardano_rpc_rust_client::models::{
     GetValidatorStorageLocations200Response, GetValidatorStorageLocationsRequest,
-    MerkleTree200Response, MessagesByBlockRange200Response,
+    InboxIsmParameters200Response, MerkleTree200Response, MessagesByBlockRange200Response,
 };
 use url::Url;
 
@@ -49,6 +49,12 @@ impl CardanoRpc {
         &self,
     ) -> Result<MerkleTree200Response, Error<MerkleTreeError>> {
         merkle_tree(&self.0).await
+    }
+
+    pub async fn get_ism_parameters(
+        &self,
+    ) -> Result<InboxIsmParameters200Response, Error<InboxIsmParametersError>> {
+        inbox_ism_parameters(&self.0).await
     }
 
     pub async fn get_validator_storage_locations(

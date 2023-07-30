@@ -573,7 +573,10 @@ impl ChainConf {
                 ));
                 Ok(ism as Box<dyn InterchainSecurityModule>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(_) => {
+                let ism = Box::new(h_cardano::CardanoInterchainSecurityModule::new(locator));
+                Ok(ism as Box<dyn InterchainSecurityModule>)
+            }
         }
         .context(ctx)
     }
@@ -599,7 +602,10 @@ impl ChainConf {
                 let ism = Box::new(h_sealevel::SealevelMultisigIsm::new(conf, locator, keypair));
                 Ok(ism as Box<dyn MultisigIsm>)
             }
-            ChainConnectionConf::Cardano(_) => todo!(), // TODO[cardano]
+            ChainConnectionConf::Cardano(conf) => {
+                let ism = Box::new(h_cardano::CardanoMultisigIsm::new(conf, locator));
+                Ok(ism as Box<dyn MultisigIsm>)
+            }
         }
         .context(ctx)
     }
