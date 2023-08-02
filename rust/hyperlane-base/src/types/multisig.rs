@@ -7,8 +7,8 @@ use eyre::Result;
 use tracing::{debug, instrument, trace};
 
 use hyperlane_core::{
-    Checkpoint, CheckpointWithMessageId, MultisigSignedCheckpoint, SignedCheckpointWithSigner,
-    H160, H256,
+    Checkpoint, CheckpointWithMessageId, CheckpointWithMessageIdBlake2b, MultisigSignedCheckpoint,
+    SignedCheckpointWithSigner, H160, H256,
 };
 
 use crate::CheckpointSyncer;
@@ -344,6 +344,66 @@ impl MultisigCheckpointSyncer {
                             return Ok(Some(checkpoint));
                         }
                     }
+                } else {
+                    debug!(
+                        validator = format!("{:#x}", validator),
+                        index = index,
+                        "Unable to find signed checkpoint"
+                    );
+                }
+            } else {
+                debug!(%validator, "Unable to find checkpoint syncer");
+                continue;
+            }
+        }
+        Ok(None)
+    }
+
+    /// Fetches a MultisigSignedCheckpointWithMessageIdBlake2b if there is a quorum.
+    /// Returns Ok(None) if there is no quorum.
+    #[instrument(err, skip(self))]
+    pub async fn fetch_checkpoint_blake2b(
+        &self,
+        validators: &[H256],
+        threshold: usize,
+        index: u32,
+    ) -> Result<Option<MultisigSignedCheckpoint<CheckpointWithMessageIdBlake2b>>> {
+        for validator in validators.iter() {
+            let addr = H160::from(*validator);
+            if let Some(checkpoint_syncer) = self.checkpoint_syncers.get(&addr) {
+                // Gracefully ignore an error fetching the checkpoint from a validator's
+                // checkpoint syncer, which can happen if the validator has not
+                // signed the checkpoint at `index`.
+                if let Ok(Some(signed_checkpoint)) =
+                    checkpoint_syncer.fetch_checkpoint_blake2b(index).await
+                {
+                    // If the signed checkpoint is for a different index, ignore it
+                    if signed_checkpoint.value.index != index {
+                        debug!(
+                            validator = format!("{:#x}", validator),
+                            index = index,
+                            checkpoint_index = signed_checkpoint.value.index,
+                            "Checkpoint index mismatch"
+                        );
+                        continue;
+                    }
+
+                    // TODO: Ensure that the signature is actually by the validator
+                    // TODO: Support multisig checks
+                    // For Cardano/Blake2b we don't recover
+                    let signer = H160::zero(); // TODO: Get address from public key
+                    let signed_checkpoint_with_signer =
+                        SignedCheckpointWithSigner::<CheckpointWithMessageIdBlake2b> {
+                            signer,
+                            signed_checkpoint,
+                        };
+                    let signed_checkpoints = &vec![signed_checkpoint_with_signer];
+                    let checkpoint =
+                        MultisigSignedCheckpoint::<CheckpointWithMessageIdBlake2b>::try_from(
+                            signed_checkpoints,
+                        )
+                        .unwrap();
+                    return Ok(Some(checkpoint));
                 } else {
                     debug!(
                         validator = format!("{:#x}", validator),

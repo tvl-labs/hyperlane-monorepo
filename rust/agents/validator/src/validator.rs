@@ -10,7 +10,7 @@ use tracing::{error, info, info_span, instrument::Instrumented, warn, Instrument
 use hyperlane_base::{
     db::{HyperlaneRocksDB, DB},
     run_all, BaseAgent, CheckpointSyncer, ContractSyncMetrics, CoreMetrics, HyperlaneAgentCore,
-    MessageContractSync,
+    MessageContractSync, SignerConf,
 };
 use hyperlane_core::{
     accumulator::incremental::IncrementalMerkle, Announcement, ChainResult, HyperlaneChain,
@@ -38,6 +38,8 @@ pub struct Validator {
     reorg_period: u64,
     interval: Duration,
     checkpoint_syncer: Arc<dyn CheckpointSyncer>,
+    // For Cardano only, to raw sign the blake2b-hashed checkpoints
+    secret_key: Option<Vec<u8>>,
 }
 
 impl AsRef<HyperlaneAgentCore> for Validator {
@@ -98,6 +100,10 @@ impl BaseAgent for Validator {
             reorg_period: settings.reorg_period,
             interval: settings.interval,
             checkpoint_syncer,
+            secret_key: match settings.validator {
+                SignerConf::HexKey { key } => Some(key.as_bytes().to_vec()),
+                _ => None,
+            },
         })
     }
 
@@ -169,6 +175,7 @@ impl Validator {
             self.checkpoint_syncer.clone(),
             self.db.clone(),
             ValidatorSubmitterMetrics::new(&self.core.metrics, &self.origin_chain),
+            self.secret_key.clone(),
         );
 
         let empty_tree = IncrementalMerkle::default();

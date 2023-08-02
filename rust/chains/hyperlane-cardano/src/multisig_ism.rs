@@ -41,8 +41,8 @@ impl HyperlaneChain for CardanoMultisigIsm {
 impl HyperlaneContract for CardanoMultisigIsm {
     fn address(&self) -> H256 {
         // ISM on Cardano is a minting policy, not an address
-        // We could return the minting policy hash here?
-        !todo!()
+        // TODO: We could return the minting policy hash here?
+        H256::zero()
     }
 }
 

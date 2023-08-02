@@ -2,6 +2,9 @@ use async_trait::async_trait;
 use ethers::prelude::{Address, Signature};
 use ethers::types::transaction::eip2718::TypedTransaction;
 use ethers::types::transaction::eip712::Eip712;
+use ethers_core::k256::ecdsa::signature::Signer as K256Signer;
+use ethers_core::k256::ecdsa::{Signature as K256Signature, SigningKey};
+use ethers_core::k256::schnorr::signature::DigestSigner;
 use ethers_signers::{AwsSigner, AwsSignerError, LocalWallet, Signer, WalletError};
 
 use hyperlane_core::{HyperlaneSigner, HyperlaneSignerError, H160, H256};

@@ -179,6 +179,17 @@ impl CheckpointSyncer for S3Storage {
             .map_err(Into::into)
     }
 
+    async fn fetch_checkpoint_blake2b(
+        &self,
+        index: u32,
+    ) -> Result<Option<SignedCheckpointWithMessageIdBlake2b>> {
+        self.anonymously_read_from_bucket(S3Storage::checkpoint_blake2b_key(index))
+            .await?
+            .map(|data| serde_json::from_slice(&data))
+            .transpose()
+            .map_err(Into::into)
+    }
+
     async fn legacy_write_checkpoint(&self, signed_checkpoint: &SignedCheckpoint) -> Result<()> {
         let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
         self.write_to_bucket(
