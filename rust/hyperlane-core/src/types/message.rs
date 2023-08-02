@@ -1,3 +1,4 @@
+use ethers_core::abi::AbiEncode;
 use sha3::{digest::Update, Digest, Keccak256};
 use std::fmt::{Debug, Display, Formatter};
 
@@ -152,6 +153,13 @@ impl Decode for HyperlaneMessage {
 impl HyperlaneMessage {
     /// Convert the message to a message id
     pub fn id(&self) -> H256 {
+        // TODO[cardano]: a better condition.
+        let destination_domain = KnownHyperlaneDomain::try_from(self.destination);
+        if destination_domain.is_ok()
+            && destination_domain.unwrap() == KnownHyperlaneDomain::CardanoTest1
+        {
+            return H256::from_slice(Blake2b256::new().chain(self.to_vec()).finalize().as_slice());
+        }
         H256::from_slice(Keccak256::new().chain(self.to_vec()).finalize().as_slice())
     }
 

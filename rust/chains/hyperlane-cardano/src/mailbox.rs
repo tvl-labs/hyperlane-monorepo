@@ -125,15 +125,23 @@ impl Mailbox for CardanoMailbox {
     }
 
     async fn delivered(&self, id: H256) -> ChainResult<bool> {
-        todo!("Relayer") // TODO[cardano]
+        let res = self
+            .cardano_rpc
+            .is_inbox_message_delivered(id)
+            .await
+            .map_err(ChainCommunicationError::from_other)?;
+        Ok(res.is_delivered)
     }
 
     async fn default_ism(&self) -> ChainResult<H256> {
-        todo!("Relayer") // TODO[cardano]
+        // ISM on Cardano is a minting policy, not an address
+        // TODO: We could return the minting policy hash here?
+        Ok(H256::zero())
     }
 
     async fn recipient_ism(&self, recipient: H256) -> ChainResult<H256> {
-        todo!("Relayer") // TODO[cardano]
+        // All messages share the same ISM at the moment
+        self.default_ism().await
     }
 
     async fn process(
@@ -142,7 +150,18 @@ impl Mailbox for CardanoMailbox {
         metadata: &[u8],
         tx_gas_limit: Option<U256>,
     ) -> ChainResult<TxOutcome> {
-        todo!("Relayer") // TODO[cardano]
+        let res = self
+            .cardano_rpc
+            .submit_inbox_message(message, metadata)
+            .await
+            .map_err(ChainCommunicationError::from_other)?;
+        Ok(TxOutcome {
+            txid: H256::from_str(res.tx_id.as_str()).unwrap(),
+            executed: true,
+            // TODO: Complete these
+            gas_used: U256::zero(),
+            gas_price: U256::zero(),
+        })
     }
 
     async fn process_estimate_costs(
@@ -150,7 +169,17 @@ impl Mailbox for CardanoMailbox {
         message: &HyperlaneMessage,
         metadata: &[u8],
     ) -> ChainResult<TxCostEstimate> {
-        todo!("Relayer") // TODO[cardano]
+        let res = self
+            .cardano_rpc
+            .estimate_inbox_message_fee(message, metadata)
+            .await
+            .map_err(ChainCommunicationError::from_other)?;
+        let fee_lovelace = res.fee_lovelace as u32;
+        Ok(TxCostEstimate {
+            gas_limit: U256::from(fee_lovelace),
+            gas_price: U256::from(fee_lovelace),
+            l2_gas_limit: None,
+        })
     }
 
     fn process_calldata(&self, message: &HyperlaneMessage, metadata: &[u8]) -> Vec<u8> {

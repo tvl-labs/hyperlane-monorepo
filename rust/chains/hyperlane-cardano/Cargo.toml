@@ -15,4 +15,4 @@ hex = "0.4.3"
 tracing = { workspace = true }
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
-hyperlane-cardano-rpc-rust-client = "1.0.3"
+hyperlane-cardano-rpc-rust-client = "1.0.6"

@@ -3,9 +3,15 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::vec;
 
+use ethers::abi::AbiEncode;
+use ethers::types::Signature;
 use eyre::Result;
-use hyperlane_core::CheckpointWithMessageIdBlake2b;
+use hyperlane_core::{CheckpointWithMessageIdBlake2b, Signable, SignedType};
 use prometheus::IntGauge;
+use secp256k1::{
+    ecdsa, Error, Message as Secp256k1Message, PublicKey, Secp256k1, SecretKey, Signing,
+    Verification,
+};
 use tokio::time::sleep;
 use tracing::instrument;
 use tracing::{debug, info};
@@ -14,6 +20,7 @@ use hyperlane_base::{db::HyperlaneRocksDB, CheckpointSyncer, CoreMetrics};
 use hyperlane_core::{
     accumulator::incremental::IncrementalMerkle, Checkpoint, CheckpointWithMessageId,
     HyperlaneChain, HyperlaneContract, HyperlaneDomain, HyperlaneSignerExt, Mailbox,
+    SignedCheckpointWithMessageIdBlake2b,
 };
 use hyperlane_ethereum::SingletonSignerHandle;
 
@@ -26,6 +33,8 @@ pub(crate) struct ValidatorSubmitter {
     checkpoint_syncer: Arc<dyn CheckpointSyncer>,
     message_db: HyperlaneRocksDB,
     metrics: ValidatorSubmitterMetrics,
+    // For Cardano only, to raw sign the blake2b-hashed checkpoints
+    secret_key: Option<Vec<u8>>,
 }
 
 impl ValidatorSubmitter {
@@ -37,6 +46,7 @@ impl ValidatorSubmitter {
         checkpoint_syncer: Arc<dyn CheckpointSyncer>,
         message_db: HyperlaneRocksDB,
         metrics: ValidatorSubmitterMetrics,
+        secret_key: Option<Vec<u8>>,
     ) -> Self {
         Self {
             reorg_period: NonZeroU64::new(reorg_period),
@@ -46,6 +56,7 @@ impl ValidatorSubmitter {
             checkpoint_syncer,
             message_db,
             metrics,
+            secret_key,
         }
     }
 
@@ -125,12 +136,29 @@ impl ValidatorSubmitter {
                         );
 
                         // Write blake2b checkpoint for Cardano
-                        let signed_checkpoint = self
-                            .signer
-                            .sign(CheckpointWithMessageIdBlake2b {
-                                checkpoint: queued_checkpoint,
-                            })
-                            .await?;
+                        let checkpoint_blake2b = CheckpointWithMessageIdBlake2b {
+                            checkpoint: queued_checkpoint,
+                        };
+                        let secret_key =
+                            SecretKey::from_slice(self.secret_key.clone().unwrap().as_ref())
+                                .unwrap();
+                        let checkpoint_hash = Secp256k1Message::from_slice(
+                            checkpoint_blake2b.signing_hash().as_bytes(),
+                        )
+                        .unwrap();
+                        let secp = Secp256k1::new();
+                        let (rid, signature) = secp
+                            .sign_ecdsa_recoverable(&checkpoint_hash, &secret_key)
+                            .serialize_compact();
+                        let signed_checkpoint = SignedCheckpointWithMessageIdBlake2b {
+                            value: checkpoint_blake2b,
+                            signature: Signature::try_from(
+                                [signature.as_slice(), &[27 + rid.to_i32() as u8]]
+                                    .concat()
+                                    .as_slice(),
+                            )
+                            .unwrap(),
+                        };
                         self.checkpoint_syncer
                             .write_checkpoint_blake2b(&signed_checkpoint)
                             .await?;

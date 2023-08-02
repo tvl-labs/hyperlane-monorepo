@@ -21,6 +21,9 @@ tokio = { workspace = true, features = ["rt", "macros", "parking_lot"] }
 tracing-futures.workspace = true
 tracing-subscriber.workspace = true
 tracing.workspace = true
+# For Raw Signer to Cardano
+secp256k1 = { version = "0.27.0", features = ["recovery"] }
+hex = "0.4.3"
 
 hyperlane-core = { path = "../../hyperlane-core" }
 hyperlane-base = { path = "../../hyperlane-base" }

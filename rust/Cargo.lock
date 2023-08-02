@@ -2170,7 +2170,7 @@ dependencies = [
  "getrandom 0.2.10",
  "lazy_static",
  "rand 0.8.5",
- "secp256k1",
+ "secp256k1 0.24.3",
  "serde",
  "sha2 0.10.7",
  "zeroize",
@@ -3014,9 +3014,9 @@ dependencies = [
 
 [[package]]
 name = "hyperlane-cardano-rpc-rust-client"
-version = "1.0.3"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "411620e88a0f1acaa373fe8a9d187fa8209e7ac504a916c14bce5ed9d8d913ca"
+checksum = "2bf69af3f13f7668404d6dc282bb37a8f73a2016d8ee9cdb41f5ef13b3c2c4a8"
 dependencies = [
  "reqwest",
  "serde",
@@ -5474,7 +5474,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b1629c9c557ef9b293568b338dddfc8208c98a18c59d722a9d53f859d9c9b62"
 dependencies = [
  "rand 0.8.5",
- "secp256k1-sys",
+ "secp256k1-sys 0.6.1",
+]
+
+[[package]]
+name = "secp256k1"
+version = "0.27.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25996b82292a7a57ed3508f052cfff8640d38d32018784acd714758b43da9c8f"
+dependencies = [
+ "secp256k1-sys 0.8.1",
 ]
 
 [[package]]
@@ -5482,6 +5491,15 @@ name = "secp256k1-sys"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83080e2c2fc1006e625be82e5d1eb6a43b7fd9578b617fcc55814daf286bba4b"
+dependencies = [
+ "cc",
+]
+
+[[package]]
+name = "secp256k1-sys"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70a129b9e9efbfb223753b9163c4ab3b13cff7fd9c7f010fbac25ab4099fa07e"
 dependencies = [
  "cc",
 ]
@@ -6635,11 +6653,13 @@ dependencies = [
  "ethers",
  "eyre",
  "futures-util",
+ "hex 0.4.3",
  "hyperlane-base",
  "hyperlane-core",
  "hyperlane-ethereum",
  "hyperlane-test",
  "prometheus",
+ "secp256k1 0.27.0",
  "serde",
  "serde_json",
  "thiserror",

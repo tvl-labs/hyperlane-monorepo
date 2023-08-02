@@ -22,6 +22,10 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         vec![
             MetadataToken::CheckpointMailbox,
             MetadataToken::CheckpointRoot,
+            // FIXME: Why does the original code not have the checkpoint index?
+            // Cardano needs this to hash the checkpoint to verify against
+            // the validator's signature.
+            MetadataToken::CheckpointIndex,
             MetadataToken::Signatures,
         ]
     }
@@ -34,8 +38,9 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         checkpoint_syncer: &MultisigCheckpointSyncer,
     ) -> Result<Option<MultisigMetadata>> {
         const CTX: &str = "When fetching MessageIdMultisig metadata";
+        // TODO: Select checkpoint depending on destination chain
         let Some(quorum_checkpoint) = checkpoint_syncer
-            .fetch_checkpoint(validators, threshold as usize, message.nonce)
+            .fetch_checkpoint_blake2b(validators, threshold as usize, message.nonce)
             .await
             .context(CTX)?
         else {
@@ -52,7 +57,7 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         }
 
         Ok(Some(MultisigMetadata::new(
-            quorum_checkpoint.checkpoint.checkpoint,
+            quorum_checkpoint.checkpoint.checkpoint.checkpoint,
             quorum_checkpoint.signatures,
             None,
             None,
