@@ -6,7 +6,7 @@ use derive_new::new;
 
 use eyre::{Context, Result};
 use hyperlane_base::MultisigCheckpointSyncer;
-use hyperlane_core::{HyperlaneMessage, H256};
+use hyperlane_core::{HyperlaneMessage, KnownHyperlaneDomain, H256};
 use tracing::warn;
 
 use crate::msg::metadata::BaseMetadataBuilder;
@@ -38,29 +38,58 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         checkpoint_syncer: &MultisigCheckpointSyncer,
     ) -> Result<Option<MultisigMetadata>> {
         const CTX: &str = "When fetching MessageIdMultisig metadata";
-        // TODO: Select checkpoint depending on destination chain
-        let Some(quorum_checkpoint) = checkpoint_syncer
-            .fetch_checkpoint_blake2b(validators, threshold as usize, message.nonce)
+        match KnownHyperlaneDomain::try_from(message.destination) {
+            Ok(KnownHyperlaneDomain::CardanoTest1) => {
+                // TODO: Deduplicate code between keccak checkpoint & blake2b checkpoint types
+                let Some(quorum_checkpoint) = checkpoint_syncer
+                .fetch_checkpoint_blake2b(validators, threshold as usize, message.nonce)
+                .await
+                .context(CTX)?
+            else {
+                return Ok(None);
+            };
+
+                if quorum_checkpoint.checkpoint.message_id != message.id() {
+                    warn!(
+                        "Quorum checkpoint message id {} does not match message id {}",
+                        quorum_checkpoint.checkpoint.message_id,
+                        message.id()
+                    );
+                    return Ok(None);
+                }
+
+                Ok(Some(MultisigMetadata::new(
+                    quorum_checkpoint.checkpoint.checkpoint.checkpoint,
+                    quorum_checkpoint.signatures,
+                    None,
+                    None,
+                )))
+            }
+            _ => {
+                let Some(quorum_checkpoint) = checkpoint_syncer
+            .fetch_checkpoint(validators, threshold as usize, message.nonce)
             .await
             .context(CTX)?
         else {
             return Ok(None);
         };
 
-        if quorum_checkpoint.checkpoint.message_id != message.id() {
-            warn!(
-                "Quorum checkpoint message id {} does not match message id {}",
-                quorum_checkpoint.checkpoint.message_id,
-                message.id()
-            );
-            return Ok(None);
-        }
+                if quorum_checkpoint.checkpoint.message_id != message.id() {
+                    warn!(
+                        "Quorum checkpoint message id {} does not match message id {}",
+                        quorum_checkpoint.checkpoint.message_id,
+                        message.id()
+                    );
+                    return Ok(None);
+                }
 
-        Ok(Some(MultisigMetadata::new(
-            quorum_checkpoint.checkpoint.checkpoint.checkpoint,
-            quorum_checkpoint.signatures,
-            None,
-            None,
-        )))
+                Ok(Some(MultisigMetadata::new(
+                    quorum_checkpoint.checkpoint.checkpoint,
+                    quorum_checkpoint.signatures,
+                    None,
+                    None,
+                )))
+            }
+        }
     }
 }
