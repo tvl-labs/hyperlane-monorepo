@@ -153,10 +153,8 @@ fn order_signatures(desired_order: &[H256], signatures: &[SignatureWithSigner]) 
         .iter()
         .cloned()
         .map(|s| {
-            // TODO: Revert this
-            // let order_index = ordering_map.get(&H256::from(s.signer)).unwrap();
-            // (s, *order_index)
-            (s, 0)
+            let order_index = ordering_map.get(&H256::from(s.signer)).unwrap();
+            (s, *order_index)
         })
         .collect::<Vec<_>>();
     // Sort by the index
