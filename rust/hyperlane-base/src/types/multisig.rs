@@ -388,10 +388,17 @@ impl MultisigCheckpointSyncer {
                         continue;
                     }
 
-                    // TODO: Ensure that the signature is actually by the validator
                     // TODO: Support multisig checks
-                    // For Cardano/Blake2b we don't recover
-                    let signer = H160::zero(); // TODO: Get address from public key
+                    let signer = signed_checkpoint.recover_raw()?;
+                    println!("Signer {:?}", signer);
+                    if H256::from(signer) != *validator {
+                        debug!(
+                            validator = format!("{:#x}", validator),
+                            index = index,
+                            "Checkpoint signature mismatch"
+                        );
+                        continue;
+                    }
                     let signed_checkpoint_with_signer =
                         SignedCheckpointWithSigner::<CheckpointWithMessageIdBlake2b> {
                             signer,

@@ -102,7 +102,12 @@ impl<T: Signable + Serialize> Serialize for SignedType<T> {
 }
 
 impl<T: Signable> SignedType<T> {
-    /// Recover the Ethereum address of the signer
+    /// Recover the Ethereum address of the signer over raw ECDSA-SECP256 signature
+    pub fn recover_raw(&self) -> Result<Address, HyperlaneProtocolError> {
+        Ok(self.signature.recover(self.value.signing_hash())?)
+    }
+
+    /// Recover the Ethereum address of the signer over ETH signed signature
     pub fn recover(&self) -> Result<Address, HyperlaneProtocolError> {
         Ok(self
             .signature
