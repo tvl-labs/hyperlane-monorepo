@@ -13,7 +13,7 @@ use crate::Signers;
 /// A callback to send the result of a signing operation
 type Callback = oneshot::Sender<Result<Signature, HyperlaneSignerError>>;
 /// A hash that needs to be signed with a callback to send the result
-type SignTask = (H256, Callback);
+type SignTask = (H256, bool, Callback);
 
 /// A wrapper around a signer that uses channels to ensure that only one call is
 /// made at a time. Mostly useful for the AWS signers.
@@ -50,9 +50,13 @@ impl HyperlaneSigner for SingletonSignerHandle {
         self.address
     }
 
-    async fn sign_hash(&self, hash: &H256) -> Result<Signature, HyperlaneSignerError> {
+    async fn sign_hash(
+        &self,
+        hash: &H256,
+        is_digest: bool,
+    ) -> Result<Signature, HyperlaneSignerError> {
         let (tx, rx) = oneshot::channel();
-        let task = (*hash, tx);
+        let task = (*hash, is_digest, tx);
         self.tx.send(task).map_err(SingletonSignerError::from)?;
         rx.await.map_err(SingletonSignerError::from)?
     }
@@ -80,10 +84,10 @@ impl SingletonSigner {
 
     /// Run this signer's event loop.
     pub async fn run(mut self) {
-        while let Some((hash, tx)) = self.rx.recv().await {
+        while let Some((hash, is_digest, tx)) = self.rx.recv().await {
             let mut retries = self.retries;
             let res = loop {
-                match self.inner.sign_hash(&hash).await {
+                match self.inner.sign_hash(&hash, is_digest).await {
                     Ok(res) => break Ok(res),
                     Err(err) => {
                         warn!("Error signing hash: {}", err);

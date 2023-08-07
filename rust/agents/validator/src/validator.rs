@@ -10,7 +10,7 @@ use tracing::{error, info, info_span, instrument::Instrumented, warn, Instrument
 use hyperlane_base::{
     db::{HyperlaneRocksDB, DB},
     run_all, BaseAgent, CheckpointSyncer, ContractSyncMetrics, CoreMetrics, HyperlaneAgentCore,
-    MessageContractSync, SignerConf,
+    MessageContractSync,
 };
 use hyperlane_core::{
     accumulator::incremental::IncrementalMerkle, Announcement, ChainResult, HyperlaneChain,
@@ -38,8 +38,6 @@ pub struct Validator {
     reorg_period: u64,
     interval: Duration,
     checkpoint_syncer: Arc<dyn CheckpointSyncer>,
-    // For Cardano only, to raw sign the blake2b-hashed checkpoints
-    secret_key: Option<Vec<u8>>,
 }
 
 impl AsRef<HyperlaneAgentCore> for Validator {
@@ -61,7 +59,6 @@ impl BaseAgent for Validator {
         let db = DB::from_path(&settings.db)?;
         let msg_db = HyperlaneRocksDB::new(&settings.origin_chain, db);
 
-        /// TODO[cardano]: checkpoint signer must be Cardano-aware.
         // Intentionally using hyperlane_ethereum for the validator's signer
         let (signer_instance, signer) = SingletonSigner::new(settings.validator.build().await?);
 
@@ -100,10 +97,6 @@ impl BaseAgent for Validator {
             reorg_period: settings.reorg_period,
             interval: settings.interval,
             checkpoint_syncer,
-            secret_key: match settings.validator {
-                SignerConf::HexKey { key } => Some(key.as_bytes().to_vec()),
-                _ => None,
-            },
         })
     }
 
@@ -175,7 +168,6 @@ impl Validator {
             self.checkpoint_syncer.clone(),
             self.db.clone(),
             ValidatorSubmitterMetrics::new(&self.core.metrics, &self.origin_chain),
-            self.secret_key.clone(),
         );
 
         let empty_tree = IncrementalMerkle::default();
@@ -242,7 +234,7 @@ impl Validator {
             mailbox_domain: self.mailbox.domain().id(),
             storage_location: self.checkpoint_syncer.announcement_location(),
         };
-        let signed_announcement = self.signer.sign(announcement.clone()).await?;
+        let signed_announcement = self.signer.sign(announcement.clone(), false).await?;
         self.checkpoint_syncer
             .write_announcement(&signed_announcement)
             .await?;
