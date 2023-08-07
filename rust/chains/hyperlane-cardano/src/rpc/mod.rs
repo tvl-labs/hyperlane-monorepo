@@ -46,7 +46,7 @@ impl CardanoRpc {
         from_block: u32,
         to_block: u32,
     ) -> Result<MessagesByBlockRange200Response, Error<MessagesByBlockRangeError>> {
-        messages_by_block_range(&self.0, from_block as i32, to_block as i32).await
+        messages_by_block_range(&self.0, from_block, to_block).await
     }
 
     pub async fn get_latest_merkle_tree(
@@ -87,16 +87,16 @@ impl CardanoRpc {
             EstimateInboundMessageFeeRequest {
                 relayer_cardano_address:
                     "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(), // TODO: Read from config
-                origin: message.origin as f32,
+                origin: message.origin,
                 origin_mailbox,
                 checkpoint_root,
-                checkpoint_index: checkpoint_index as f32,
+                checkpoint_index: checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
-                    version: message.version as f32,
-                    nonce: message.nonce as f32,
-                    origin_domain: message.origin as f32,
+                    version: message.version as u32,
+                    nonce: message.nonce,
+                    origin_domain: message.origin,
                     sender: format!("0x{}", message.sender.encode_hex::<String>()),
-                    destination_domain: message.destination as f32,
+                    destination_domain: message.destination,
                     recipient: format!("0x{}", message.recipient.encode_hex::<String>()),
                     message: message.body.encode_hex(),
                 }),
@@ -129,16 +129,16 @@ impl CardanoRpc {
                 // TODO: Read from config
                 private_key: "e8e34f6c74e22577d609803dfe9c8773f10e478e7dadf6d065a78ae42a21f912"
                     .to_string(),
-                origin: message.origin as f32,
+                origin: message.origin,
                 origin_mailbox,
                 checkpoint_root,
-                checkpoint_index: checkpoint_index as f32,
+                checkpoint_index: checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
-                    version: message.version as f32,
-                    nonce: message.nonce as f32,
-                    origin_domain: message.origin as f32,
+                    version: message.version as u32,
+                    nonce: message.nonce,
+                    origin_domain: message.origin,
                     sender: format!("0x{}", message.sender.encode_hex::<String>()),
-                    destination_domain: message.destination as f32,
+                    destination_domain: message.destination,
                     recipient: format!("0x{}", message.recipient.encode_hex::<String>()),
                     message: message.body.encode_hex(),
                 }),
