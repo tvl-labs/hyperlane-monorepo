@@ -14,11 +14,51 @@ use hyperlane_cardano_rpc_rust_client::models::{
     InboxIsmParameters200Response, IsInboxMessageDelivered200Response, MerkleTree200Response,
     MessagesByBlockRange200Response, SubmitInboundMessage200Response, SubmitInboundMessageRequest,
 };
+use hyperlane_core::{Decode, HyperlaneProtocolError};
 use url::Url;
 
 use hyperlane_core::{HyperlaneMessage, H256};
 
 pub mod conversion;
+
+#[derive(Debug)]
+pub struct CardanoMessageMetadata {
+    origin_mailbox: H256,
+    checkpoint_root: H256,
+    checkpoint_index: u32,
+    signatures: Vec<String>, // [u8; 64] is more precise than String
+}
+
+impl Decode for CardanoMessageMetadata {
+    fn read_from<R>(reader: &mut R) -> Result<Self, HyperlaneProtocolError>
+    where
+        R: std::io::Read,
+        Self: Sized,
+    {
+        let mut origin_mailbox = H256::zero();
+        reader.read_exact(&mut origin_mailbox.as_mut())?;
+
+        let mut checkpoint_root = H256::zero();
+        reader.read_exact(checkpoint_root.as_mut())?;
+
+        let mut checkpoint_index = [0u8; 4];
+        reader.read_exact(&mut checkpoint_index)?;
+
+        let mut signatures = vec![];
+        reader.read_to_end(&mut signatures)?;
+
+        Ok(Self {
+            origin_mailbox,
+            checkpoint_root,
+            checkpoint_index: u32::from_be_bytes(checkpoint_index),
+            signatures: signatures
+                .chunks(65)
+                // Cardano checks raw signatures without the last byte
+                .map(|s| hex::encode(&s[0..s.len() - 1]))
+                .collect(),
+        })
+    }
+}
 
 #[derive(Debug)]
 pub struct CardanoRpc(Configuration);
@@ -68,29 +108,24 @@ impl CardanoRpc {
         is_inbox_message_delivered(&self.0, message_id.encode_hex::<String>().as_str()).await
     }
 
-    // NOTE: We must mock so much we don't even need a tight/deterministic
-    // implementation in the RPC...
     pub async fn estimate_inbox_message_fee(
         &self,
         message: &HyperlaneMessage,
         metadata: &[u8],
     ) -> Result<EstimateInboundMessageFee200Response, Error<EstimateInboundMessageFeeError>> {
-        let origin_mailbox = format!("0x{}", hex::encode(&metadata[0..32]));
-        let checkpoint_root = hex::encode(&metadata[32..64]);
-        let checkpoint_index = u32::from_be_bytes(metadata[64..68].try_into().unwrap());
-        let signatures = metadata[68..metadata.len() - 1]
-            .chunks(64)
-            .map(|s| hex::encode(s))
-            .collect();
+        let parsed_metadata = CardanoMessageMetadata::read_from(&mut &metadata[..]).unwrap();
         estimate_inbound_message_fee(
             &self.0,
             EstimateInboundMessageFeeRequest {
                 relayer_cardano_address:
-                    "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(), // TODO: Read from config
+                    "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(), // TODO[cardano]: Read from config
                 origin: message.origin,
-                origin_mailbox,
-                checkpoint_root,
-                checkpoint_index: checkpoint_index,
+                origin_mailbox: format!(
+                    "0x{}",
+                    parsed_metadata.origin_mailbox.encode_hex::<String>()
+                ),
+                checkpoint_root: parsed_metadata.checkpoint_root.encode_hex::<String>(),
+                checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
                     nonce: message.nonce,
@@ -100,39 +135,34 @@ impl CardanoRpc {
                     recipient: format!("0x{}", message.recipient.encode_hex::<String>()),
                     message: message.body.encode_hex(),
                 }),
-                //
-                signatures,
+                signatures: parsed_metadata.signatures,
             },
         )
         .await
     }
 
-    // TODO: Share metadata decoding code with estimating fee
     pub async fn submit_inbox_message(
         &self,
         message: &HyperlaneMessage,
         metadata: &[u8],
     ) -> Result<SubmitInboundMessage200Response, Error<SubmitInboundMessageError>> {
-        let origin_mailbox = format!("0x{}", hex::encode(&metadata[0..32]));
-        let checkpoint_root = hex::encode(&metadata[32..64]);
-        let checkpoint_index = u32::from_be_bytes(metadata[64..68].try_into().unwrap());
-        let signatures = metadata[68..metadata.len() - 1]
-            .chunks(64)
-            .map(|s| hex::encode(s))
-            .collect();
+        let parsed_metadata = CardanoMessageMetadata::read_from(&mut &metadata[..]).unwrap();
         submit_inbound_message(
             &self.0,
             SubmitInboundMessageRequest {
-                // TODO: Read from config
+                // TODO[cardano]: Read from config
                 relayer_cardano_address:
                     "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(),
-                // TODO: Read from config
+                // TODO[cardano]: Read from config
                 private_key: "e8e34f6c74e22577d609803dfe9c8773f10e478e7dadf6d065a78ae42a21f912"
                     .to_string(),
                 origin: message.origin,
-                origin_mailbox,
-                checkpoint_root,
-                checkpoint_index: checkpoint_index,
+                origin_mailbox: format!(
+                    "0x{}",
+                    parsed_metadata.origin_mailbox.encode_hex::<String>()
+                ),
+                checkpoint_root: parsed_metadata.checkpoint_root.encode_hex::<String>(),
+                checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
                     nonce: message.nonce,
@@ -143,7 +173,7 @@ impl CardanoRpc {
                     message: message.body.encode_hex(),
                 }),
                 //
-                signatures,
+                signatures: parsed_metadata.signatures,
             },
         )
         .await
