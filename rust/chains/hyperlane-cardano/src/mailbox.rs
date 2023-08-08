@@ -158,9 +158,9 @@ impl Mailbox for CardanoMailbox {
         Ok(TxOutcome {
             txid: H256::from_str(res.tx_id.as_str()).unwrap(),
             executed: true,
-            // TODO[cardano]: Complete these
-            gas_used: U256::zero(),
-            gas_price: U256::zero(),
+            gas_used: U256::from(res.fee_lovelace),
+            // NOTE: There's no "dynamic" gas price on Cardano
+            gas_price: U256::from(res.fee_lovelace),
         })
     }
 
@@ -177,6 +177,7 @@ impl Mailbox for CardanoMailbox {
         let fee_lovelace = res.fee_lovelace as u32;
         Ok(TxCostEstimate {
             gas_limit: U256::from(fee_lovelace),
+            // NOTE: There's no "dynamic" gas price on Cardano
             gas_price: U256::from(fee_lovelace),
             l2_gas_limit: None,
         })
