@@ -9,10 +9,11 @@ use hyperlane_cardano_rpc_rust_client::apis::default_api::{
 };
 use hyperlane_cardano_rpc_rust_client::apis::Error;
 use hyperlane_cardano_rpc_rust_client::models::{
-    EstimateInboundMessageFee200Response, EstimateInboundMessageFeeRequest,
+    EstimateInboundMessageFee200Response,
+    EstimateInboundMessageFeeRequest as InboundMessageRequest,
     EstimateInboundMessageFeeRequestMessage, GetValidatorStorageLocationsRequest,
     InboxIsmParameters200Response, IsInboxMessageDelivered200Response, MerkleTree200Response,
-    MessagesByBlockRange200Response, SubmitInboundMessage200Response, SubmitInboundMessageRequest,
+    MessagesByBlockRange200Response, SubmitInboundMessage200Response,
 };
 use hyperlane_core::{Decode, HyperlaneProtocolError};
 use url::Url;
@@ -116,9 +117,7 @@ impl CardanoRpc {
         let parsed_metadata = CardanoMessageMetadata::read_from(&mut &metadata[..]).unwrap();
         estimate_inbound_message_fee(
             &self.0,
-            EstimateInboundMessageFeeRequest {
-                relayer_cardano_address:
-                    "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(), // TODO[cardano]: Read from config
+            InboundMessageRequest {
                 origin: message.origin,
                 origin_mailbox: format!(
                     "0x{}",
@@ -149,13 +148,7 @@ impl CardanoRpc {
         let parsed_metadata = CardanoMessageMetadata::read_from(&mut &metadata[..]).unwrap();
         submit_inbound_message(
             &self.0,
-            SubmitInboundMessageRequest {
-                // TODO[cardano]: Read from config
-                relayer_cardano_address:
-                    "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe".to_string(),
-                // TODO[cardano]: Read from config
-                private_key: "e8e34f6c74e22577d609803dfe9c8773f10e478e7dadf6d065a78ae42a21f912"
-                    .to_string(),
+            InboundMessageRequest {
                 origin: message.origin,
                 origin_mailbox: format!(
                     "0x{}",
