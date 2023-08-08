@@ -59,7 +59,7 @@ impl CardanoMailbox {
             .branches
             .iter()
             .map(
-                |b| H256::from_str(b).unwrap(), /* TODO: better error handling for RPC output */
+                |b| H256::from_str(b).unwrap(), /* TODO[cardano]: better error handling for RPC output */
             )
             .collect::<Vec<H256>>()
             .try_into()
@@ -135,7 +135,7 @@ impl Mailbox for CardanoMailbox {
 
     async fn default_ism(&self) -> ChainResult<H256> {
         // ISM on Cardano is a minting policy, not an address
-        // TODO: We could return the minting policy hash here?
+        // TODO[cardano]: We could return the minting policy hash here?
         Ok(H256::zero())
     }
 
@@ -158,7 +158,7 @@ impl Mailbox for CardanoMailbox {
         Ok(TxOutcome {
             txid: H256::from_str(res.tx_id.as_str()).unwrap(),
             executed: true,
-            // TODO: Complete these
+            // TODO[cardano]: Complete these
             gas_used: U256::zero(),
             gas_price: U256::zero(),
         })

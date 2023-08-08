@@ -40,7 +40,7 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         const CTX: &str = "When fetching MessageIdMultisig metadata";
         match KnownHyperlaneDomain::try_from(message.destination) {
             Ok(KnownHyperlaneDomain::CardanoTest1) => {
-                // TODO: Deduplicate code between keccak checkpoint & blake2b checkpoint types
+                // TODO[cardano]: Deduplicate code between keccak checkpoint & blake2b checkpoint types
                 let Some(quorum_checkpoint) = checkpoint_syncer
                 .fetch_checkpoint_blake2b(validators, threshold as usize, message.nonce)
                 .await

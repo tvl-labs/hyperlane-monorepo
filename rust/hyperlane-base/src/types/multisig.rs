@@ -388,9 +388,8 @@ impl MultisigCheckpointSyncer {
                         continue;
                     }
 
-                    // TODO: Support multisig checks
+                    // TODO[cardano]: Support multisig checks
                     let signer = signed_checkpoint.recover_raw()?;
-                    println!("Signer {:?}", signer);
                     if H256::from(signer) != *validator {
                         debug!(
                             validator = format!("{:#x}", validator),

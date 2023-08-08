@@ -41,7 +41,7 @@ impl HyperlaneChain for CardanoMultisigIsm {
 impl HyperlaneContract for CardanoMultisigIsm {
     fn address(&self) -> H256 {
         // ISM on Cardano is a minting policy, not an address
-        // TODO: We could return the minting policy hash here?
+        // TODO[cadarno]: We could return the minting policy hash here?
         H256::zero()
     }
 }
@@ -54,7 +54,7 @@ impl MultisigIsm for CardanoMultisigIsm {
         message: &HyperlaneMessage,
     ) -> ChainResult<(Vec<H256>, u8)> {
         // We're using the same multisig ISM for all messages
-        // TODO: https://github.com/tvl-labs/hyperlane-cardano/issues/42
+        // TODO[cadarno]: https://github.com/tvl-labs/hyperlane-cardano/issues/42
         // will enable dApp-defined ISM
         let parameters = self.cardano_rpc.get_ism_parameters().await.unwrap();
         let validators = parameters

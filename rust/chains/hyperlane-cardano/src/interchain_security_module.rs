@@ -51,7 +51,7 @@ impl InterchainSecurityModule for CardanoInterchainSecurityModule {
         _message: &HyperlaneMessage,
         _metadata: &[u8],
     ) -> ChainResult<Option<U256>> {
-        // TODO: What does this mean on Cardano?
+        // TODO[cardano]: What does this mean on Cardano?
         Ok(Some(U256::zero()))
     }
 }
