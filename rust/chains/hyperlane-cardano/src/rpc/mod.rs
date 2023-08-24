@@ -123,7 +123,10 @@ impl CardanoRpc {
                     "0x{}",
                     parsed_metadata.origin_mailbox.encode_hex::<String>()
                 ),
-                checkpoint_root: parsed_metadata.checkpoint_root.encode_hex::<String>(),
+                checkpoint_root: format!(
+                    "0x{}",
+                    parsed_metadata.checkpoint_root.encode_hex::<String>()
+                ),
                 checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
@@ -132,7 +135,7 @@ impl CardanoRpc {
                     sender: format!("0x{}", message.sender.encode_hex::<String>()),
                     destination_domain: message.destination,
                     recipient: format!("0x{}", message.recipient.encode_hex::<String>()),
-                    message: message.body.encode_hex(),
+                    message: format!("0x{}", message.body.encode_hex::<String>()),
                 }),
                 signatures: parsed_metadata.signatures,
             },
@@ -154,7 +157,10 @@ impl CardanoRpc {
                     "0x{}",
                     parsed_metadata.origin_mailbox.encode_hex::<String>()
                 ),
-                checkpoint_root: parsed_metadata.checkpoint_root.encode_hex::<String>(),
+                checkpoint_root: format!(
+                    "0x{}",
+                    parsed_metadata.checkpoint_root.encode_hex::<String>()
+                ),
                 checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
@@ -163,7 +169,7 @@ impl CardanoRpc {
                     sender: format!("0x{}", message.sender.encode_hex::<String>()),
                     destination_domain: message.destination,
                     recipient: format!("0x{}", message.recipient.encode_hex::<String>()),
-                    message: message.body.encode_hex(),
+                    message: format!("0x{}", message.body.encode_hex::<String>()),
                 }),
                 //
                 signatures: parsed_metadata.signatures,
