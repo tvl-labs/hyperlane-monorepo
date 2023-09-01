@@ -26,7 +26,6 @@ pub mod conversion;
 pub struct CardanoMessageMetadata {
     origin_mailbox: H256,
     checkpoint_root: H256,
-    checkpoint_index: u32,
     signatures: Vec<String>, // [u8; 64] is more precise than String
 }
 
@@ -42,16 +41,12 @@ impl Decode for CardanoMessageMetadata {
         let mut checkpoint_root = H256::zero();
         reader.read_exact(checkpoint_root.as_mut())?;
 
-        let mut checkpoint_index = [0u8; 4];
-        reader.read_exact(&mut checkpoint_index)?;
-
         let mut signatures = vec![];
         reader.read_to_end(&mut signatures)?;
 
         Ok(Self {
             origin_mailbox,
             checkpoint_root,
-            checkpoint_index: u32::from_be_bytes(checkpoint_index),
             signatures: signatures
                 .chunks(65)
                 // Cardano checks raw signatures without the last byte
@@ -118,7 +113,6 @@ impl CardanoRpc {
         estimate_inbound_message_fee(
             &self.0,
             InboundMessageRequest {
-                origin: message.origin,
                 origin_mailbox: format!(
                     "0x{}",
                     parsed_metadata.origin_mailbox.encode_hex::<String>()
@@ -127,7 +121,6 @@ impl CardanoRpc {
                     "0x{}",
                     parsed_metadata.checkpoint_root.encode_hex::<String>()
                 ),
-                checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
                     nonce: message.nonce,
@@ -152,7 +145,6 @@ impl CardanoRpc {
         submit_inbound_message(
             &self.0,
             InboundMessageRequest {
-                origin: message.origin,
                 origin_mailbox: format!(
                     "0x{}",
                     parsed_metadata.origin_mailbox.encode_hex::<String>()
@@ -161,7 +153,6 @@ impl CardanoRpc {
                     "0x{}",
                     parsed_metadata.checkpoint_root.encode_hex::<String>()
                 ),
-                checkpoint_index: parsed_metadata.checkpoint_index,
                 message: Box::new(EstimateInboundMessageFeeRequestMessage {
                     version: message.version as u32,
                     nonce: message.nonce,

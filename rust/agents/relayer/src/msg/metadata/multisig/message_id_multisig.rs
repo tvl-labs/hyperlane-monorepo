@@ -22,10 +22,6 @@ impl MultisigIsmMetadataBuilder for MessageIdMultisigMetadataBuilder {
         vec![
             MetadataToken::CheckpointMailbox,
             MetadataToken::CheckpointRoot,
-            // FIXME: Why does the original code not have the checkpoint index?
-            // Cardano needs this to hash the checkpoint to verify against
-            // the validator's signature.
-            MetadataToken::CheckpointIndex,
             MetadataToken::Signatures,
         ]
     }
