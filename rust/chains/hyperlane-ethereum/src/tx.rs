@@ -78,9 +78,13 @@ where
     let gas_limit = if let Some(gas_limit) = tx_gas_limit {
         gas_limit
     } else {
+        let hyp_gas_estimate_buffer: u32 = std::env::var("HYP_GAS_ESTIMATE_BUFFER")
+            .unwrap_or(String::from("50000"))
+            .parse()
+            .unwrap();
         tx.estimate_gas()
             .await?
-            .saturating_add(U256::from(GAS_ESTIMATE_BUFFER))
+            .saturating_add(U256::from(hyp_gas_estimate_buffer))
     };
     let Ok((max_fee, max_priority_fee)) = provider.estimate_eip1559_fees(None).await else {
         // Is not EIP 1559 chain
