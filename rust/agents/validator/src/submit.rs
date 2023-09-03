@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use std::vec;
 
 use eyre::Result;
+use hyperlane_core::CheckpointWithMessageIdBlake2b;
 use prometheus::IntGauge;
 use tokio::time::sleep;
 use tracing::instrument;
@@ -85,11 +86,12 @@ impl ValidatorSubmitter {
                 .retrieve_message_by_nonce(tree.count() as u32)?
             {
                 debug!(index = message.nonce, "Ingesting leaf to tree");
-                let message_id = message.id();
-                tree.ingest(message_id);
+                let message_id_for_merkle_tree = message.id_for_merkle_tree();
+                tree.ingest(message_id_for_merkle_tree);
 
                 let checkpoint = self.checkpoint(&tree);
 
+                let message_id = message.id();
                 checkpoint_queue.push(CheckpointWithMessageId {
                     checkpoint,
                     message_id,
@@ -113,13 +115,31 @@ impl ValidatorSubmitter {
                             continue;
                         }
 
-                        let signed_checkpoint = self.signer.sign(queued_checkpoint).await?;
+                        let signed_checkpoint = self.signer.sign(queued_checkpoint, false).await?;
                         self.checkpoint_syncer
                             .write_checkpoint(&signed_checkpoint)
                             .await?;
                         debug!(
                             index = queued_checkpoint.index,
                             "Signed and submitted checkpoint"
+                        );
+
+                        // Write blake2b checkpoint for Cardano
+                        let signed_checkpoint = self
+                            .signer
+                            .sign(
+                                CheckpointWithMessageIdBlake2b {
+                                    checkpoint: queued_checkpoint,
+                                },
+                                true,
+                            )
+                            .await?;
+                        self.checkpoint_syncer
+                            .write_checkpoint_blake2b(&signed_checkpoint)
+                            .await?;
+                        debug!(
+                            index = queued_checkpoint.index,
+                            "Signed and submitted blake2b checkpoint"
                         );
 
                         // small sleep before signing next checkpoint to avoid rate limiting
@@ -207,7 +227,7 @@ impl ValidatorSubmitter {
                 .map(|i| i < latest_checkpoint.index)
                 .unwrap_or(true)
             {
-                let signed_checkpoint = self.signer.sign(latest_checkpoint).await?;
+                let signed_checkpoint = self.signer.sign(latest_checkpoint, false).await?;
 
                 info!(signed_checkpoint = ?signed_checkpoint, signer=?self.signer, "Signed new latest checkpoint");
                 current_index = Some(latest_checkpoint.index);

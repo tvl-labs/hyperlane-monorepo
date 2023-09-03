@@ -117,6 +117,8 @@ pub enum KnownHyperlaneDomain {
     // TODO: re-add once we deploy solanadevnet with a new domain ID.
     // /// Sealevel local chain.
     // SealevelTest1 = 13375,
+    /// Cardano local chain
+    CardanoTest1 = 112233,
 }
 
 #[derive(Clone)]
@@ -181,6 +183,8 @@ pub enum HyperlaneDomainProtocol {
     Fuel,
     /// A Sealevel-based chain type which uses hyperlane-sealevel.
     Sealevel,
+    /// A Cardano-based chain type which uses hyperlane-cardano.
+    Cardano,
 }
 
 impl HyperlaneDomainProtocol {
@@ -190,6 +194,7 @@ impl HyperlaneDomainProtocol {
             Ethereum => format!("{:?}", H160::from(addr)),
             Fuel => format!("{:?}", addr),
             Sealevel => format!("{:?}", addr),
+            Cardano => format!("{:?}", addr),
         }
     }
 }
@@ -212,7 +217,7 @@ impl KnownHyperlaneDomain {
                 Goerli, Mumbai, Fuji, ArbitrumGoerli, OptimismGoerli, BinanceSmartChainTestnet,
                 Alfajores, MoonbaseAlpha, Zksync2Testnet, Sepolia
             ],
-            LocalTestChain: [Test1, Test2, Test3, FuelTest1],
+            LocalTestChain: [Test1, Test2, Test3, FuelTest1, CardanoTest1],
         })
     }
 
@@ -227,6 +232,7 @@ impl KnownHyperlaneDomain {
             ],
             HyperlaneDomainProtocol::Fuel: [FuelTest1],
             HyperlaneDomainProtocol::Sealevel: [],
+            HyperlaneDomainProtocol::Cardano: [CardanoTest1],
         })
     }
 }

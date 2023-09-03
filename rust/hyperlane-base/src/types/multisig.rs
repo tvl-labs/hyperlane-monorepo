@@ -7,8 +7,8 @@ use eyre::Result;
 use tracing::{debug, instrument, trace};
 
 use hyperlane_core::{
-    Checkpoint, CheckpointWithMessageId, MultisigSignedCheckpoint, SignedCheckpointWithSigner,
-    H160, H256,
+    Checkpoint, CheckpointWithMessageId, CheckpointWithMessageIdBlake2b, MultisigSignedCheckpoint,
+    SignedCheckpointWithSigner, H160, H256,
 };
 
 use crate::CheckpointSyncer;
@@ -340,6 +340,106 @@ impl MultisigCheckpointSyncer {
                                 MultisigSignedCheckpoint::<CheckpointWithMessageId>::try_from(
                                     signed_checkpoints,
                                 )?;
+                            debug!(checkpoint=?checkpoint, "Fetched multisig checkpoint");
+                            return Ok(Some(checkpoint));
+                        }
+                    }
+                } else {
+                    debug!(
+                        validator = format!("{:#x}", validator),
+                        index = index,
+                        "Unable to find signed checkpoint"
+                    );
+                }
+            } else {
+                debug!(%validator, "Unable to find checkpoint syncer");
+                continue;
+            }
+        }
+        Ok(None)
+    }
+
+    /// Fetches a MultisigSignedCheckpointWithMessageIdBlake2b if there is a quorum.
+    /// Returns Ok(None) if there is no quorum.
+    #[instrument(err, skip(self))]
+    pub async fn fetch_checkpoint_blake2b(
+        &self,
+        validators: &[H256],
+        threshold: usize,
+        index: u32,
+    ) -> Result<Option<MultisigSignedCheckpoint<CheckpointWithMessageIdBlake2b>>> {
+        // Keeps track of signed validator checkpoints for a particular root.
+        // In practice, it's likely that validators will all sign the same root for a
+        // particular index, but we'd like to be robust to this not being the case
+        let mut signed_checkpoints_per_root: HashMap<
+            H256,
+            Vec<SignedCheckpointWithSigner<CheckpointWithMessageIdBlake2b>>,
+        > = HashMap::new();
+
+        for validator in validators.iter() {
+            let addr = H160::from(*validator);
+            if let Some(checkpoint_syncer) = self.checkpoint_syncers.get(&addr) {
+                // Gracefully ignore an error fetching the checkpoint from a validator's
+                // checkpoint syncer, which can happen if the validator has not
+                // signed the checkpoint at `index`.
+                if let Ok(Some(signed_checkpoint)) =
+                    checkpoint_syncer.fetch_checkpoint_blake2b(index).await
+                {
+                    // If the signed checkpoint is for a different index, ignore it
+                    if signed_checkpoint.value.index != index {
+                        debug!(
+                            validator = format!("{:#x}", validator),
+                            index = index,
+                            checkpoint_index = signed_checkpoint.value.index,
+                            "Checkpoint index mismatch"
+                        );
+                        continue;
+                    }
+
+                    // TODO[cardano]: Support multisig checks
+                    let signer = signed_checkpoint.recover_raw()?;
+                    if H256::from(signer) != *validator {
+                        debug!(
+                            validator = format!("{:#x}", validator),
+                            index = index,
+                            "Checkpoint signature mismatch"
+                        );
+                        continue;
+                    }
+                    // Insert the SignedCheckpointWithSigner into signed_checkpoints_per_root
+                    let signed_checkpoint_with_signer =
+                        SignedCheckpointWithSigner::<CheckpointWithMessageIdBlake2b> {
+                            signer,
+                            signed_checkpoint,
+                        };
+                    let root = signed_checkpoint_with_signer.signed_checkpoint.value.root;
+
+                    let signature_count = match signed_checkpoints_per_root.entry(root) {
+                        Entry::Occupied(mut entry) => {
+                            let vec = entry.get_mut();
+                            vec.push(signed_checkpoint_with_signer);
+                            vec.len()
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(vec![signed_checkpoint_with_signer]);
+                            1 // length of 1
+                        }
+                    };
+                    debug!(
+                        validator = format!("{:#x}", validator),
+                        index = index,
+                        root = format!("{:#x}", root),
+                        signature_count = signature_count,
+                        "Found signed checkpoint"
+                    );
+                    // If we've hit a quorum, create a MultisigSignedCheckpoint
+                    if signature_count >= threshold {
+                        if let Some(signed_checkpoints) = signed_checkpoints_per_root.get(&root) {
+                            let checkpoint = MultisigSignedCheckpoint::<
+                                CheckpointWithMessageIdBlake2b,
+                            >::try_from(
+                                signed_checkpoints
+                            )?;
                             debug!(checkpoint=?checkpoint, "Fetched multisig checkpoint");
                             return Ok(Some(checkpoint));
                         }

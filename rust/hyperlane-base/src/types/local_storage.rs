@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use eyre::{Context, Result};
 use prometheus::IntGauge;
 
-use hyperlane_core::{SignedAnnouncement, SignedCheckpoint, SignedCheckpointWithMessageId};
+use hyperlane_core::{
+    SignedAnnouncement, SignedCheckpoint, SignedCheckpointWithMessageId,
+    SignedCheckpointWithMessageIdBlake2b,
+};
 
 use crate::traits::CheckpointSyncer;
 
@@ -36,6 +39,10 @@ impl LocalStorage {
 
     fn checkpoint_file_path(&self, index: u32) -> PathBuf {
         self.path.join(format!("{}_with_id.json", index))
+    }
+
+    fn checkpoint_blake2b_file_path(&self, index: u32) -> PathBuf {
+        self.path.join(format!("{}_with_id_blake2b.json", index))
     }
 
     fn latest_index_file_path(&self) -> PathBuf {
@@ -93,6 +100,17 @@ impl CheckpointSyncer for LocalStorage {
         Ok(Some(checkpoint))
     }
 
+    async fn fetch_checkpoint_blake2b(
+        &self,
+        index: u32,
+    ) -> Result<Option<SignedCheckpointWithMessageIdBlake2b>> {
+        let Ok(data) = tokio::fs::read(self.checkpoint_blake2b_file_path(index)).await else {
+            return Ok(None)
+        };
+        let checkpoint = serde_json::from_slice(&data)?;
+        Ok(Some(checkpoint))
+    }
+
     async fn legacy_write_checkpoint(&self, signed_checkpoint: &SignedCheckpoint) -> Result<()> {
         let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
         let path = self.legacy_checkpoint_file_path(signed_checkpoint.value.index);
@@ -118,6 +136,19 @@ impl CheckpointSyncer for LocalStorage {
     ) -> Result<()> {
         let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
         let path = self.checkpoint_file_path(signed_checkpoint.value.index);
+        tokio::fs::write(&path, &serialized_checkpoint)
+            .await
+            .with_context(|| format!("Writing (checkpoint, messageId) to {path:?}"))?;
+
+        Ok(())
+    }
+
+    async fn write_checkpoint_blake2b(
+        &self,
+        signed_checkpoint: &SignedCheckpointWithMessageIdBlake2b,
+    ) -> Result<()> {
+        let serialized_checkpoint = serde_json::to_string_pretty(signed_checkpoint)?;
+        let path = self.checkpoint_blake2b_file_path(signed_checkpoint.value.index);
         tokio::fs::write(&path, &serialized_checkpoint)
             .await
             .with_context(|| format!("Writing (checkpoint, messageId) to {path:?}"))?;

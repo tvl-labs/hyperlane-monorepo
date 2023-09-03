@@ -234,7 +234,7 @@ impl Validator {
             mailbox_domain: self.mailbox.domain().id(),
             storage_location: self.checkpoint_syncer.announcement_location(),
         };
-        let signed_announcement = self.signer.sign(announcement.clone()).await?;
+        let signed_announcement = self.signer.sign(announcement.clone(), false).await?;
         self.checkpoint_syncer
             .write_announcement(&signed_announcement)
             .await?;

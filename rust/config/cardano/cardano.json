@@ -1,0 +1,28 @@
+{
+  "environment": "cardano",
+  "chains": {
+    "cardanotest1": {
+      "name": "CardanoTest1",
+      "domain": "112233",
+      "addresses": {
+        "mailbox": "0x0000000000000000000000000000000000000000",
+        "interchainGasPaymaster": "0x0000000000000000000000000000000000000000",
+        "validatorAnnounce": "0x0000000000000000000000000000000000000000"
+      },
+      "signer": null,
+      "protocol": "cardano",
+      "finalityBlocks": "0",
+      "connection": {
+        "type": "http",
+        "url": "http://127.0.0.1:3001"
+      },
+      "index": {
+        "from": "1"
+      }
+    }
+  },
+  "tracing": {
+    "level": "debug",
+    "fmt": "pretty"
+  }
+}

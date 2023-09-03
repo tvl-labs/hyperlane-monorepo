@@ -21,6 +21,7 @@ tokio = { workspace = true, features = ["rt", "macros", "parking_lot"] }
 tracing-futures.workspace = true
 tracing-subscriber.workspace = true
 tracing.workspace = true
+hex = "0.4.3"
 
 hyperlane-core = { path = "../../hyperlane-core" }
 hyperlane-base = { path = "../../hyperlane-base" }

@@ -30,7 +30,11 @@ pub trait HyperlaneSigner: Send + Sync + Debug {
 
     /// Sign a hyperlane checkpoint hash. This must be a signature without eip
     /// 155.
-    async fn sign_hash(&self, hash: &H256) -> Result<Signature, HyperlaneSignerError>;
+    async fn sign_hash(
+        &self,
+        hash: &H256,
+        is_digest: bool,
+    ) -> Result<Signature, HyperlaneSignerError>;
 }
 
 /// Auto-implemented extension trait for HyperlaneSigner.
@@ -40,6 +44,7 @@ pub trait HyperlaneSignerExt {
     async fn sign<T: Signable + Send>(
         &self,
         value: T,
+        is_digest: bool,
     ) -> Result<SignedType<T>, HyperlaneSignerError>;
 
     /// Check whether a message was signed by a specific address.
@@ -51,9 +56,15 @@ impl<S: HyperlaneSigner> HyperlaneSignerExt for S {
     async fn sign<T: Signable + Send>(
         &self,
         value: T,
+        // Sign a raw digest without hashing it further.
+        // Useful for Blake2b checkpoints from EVM to Cardano.
+        // We can add a dedicated function for it to avoid code conflict,
+        // but that's also a lot of work, as we need to add another task
+        // type to `SingletonSignerHandle`.
+        is_digest: bool,
     ) -> Result<SignedType<T>, HyperlaneSignerError> {
         let signing_hash = value.signing_hash();
-        let signature = self.sign_hash(&signing_hash).await?;
+        let signature = self.sign_hash(&signing_hash, is_digest).await?;
         Ok(SignedType { value, signature })
     }
 
@@ -102,7 +113,12 @@ impl<T: Signable + Serialize> Serialize for SignedType<T> {
 }
 
 impl<T: Signable> SignedType<T> {
-    /// Recover the Ethereum address of the signer
+    /// Recover the Ethereum address of the signer over raw ECDSA-SECP256 signature
+    pub fn recover_raw(&self) -> Result<Address, HyperlaneProtocolError> {
+        Ok(self.signature.recover(self.value.signing_hash())?)
+    }
+
+    /// Recover the Ethereum address of the signer over ETH signed signature
     pub fn recover(&self) -> Result<Address, HyperlaneProtocolError> {
         Ok(self
             .signature
