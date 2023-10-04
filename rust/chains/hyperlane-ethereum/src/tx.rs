@@ -84,7 +84,7 @@ where
             .unwrap();
         tx.estimate_gas()
             .await?
-            .saturating_add(U256::from(hyp_gas_estimate_buffer))
+            .saturating_add(U256::from(hyp_gas_estimate_buffer).into())
             .into()
     };
     let Ok((max_fee, max_priority_fee)) = provider.estimate_eip1559_fees(None).await else {
