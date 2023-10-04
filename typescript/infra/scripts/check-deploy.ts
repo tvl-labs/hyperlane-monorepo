@@ -19,16 +19,21 @@ import { impersonateAccount, useLocalProvider } from '../src/utils/fork';
 
 import {
   Modules,
-  getArgsWithModuleAndFork,
   getEnvironmentConfig,
-  getRouterConfig,
+  getProxiedRouterConfig,
+  getArgs as getRootArgs,
+  withModuleAndFork,
 } from './utils';
 
-async function check() {
-  const { fork, govern, module, environment } = await getArgsWithModuleAndFork()
+function getArgs() {
+  return withModuleAndFork(getRootArgs())
     .boolean('govern')
     .default('govern', false)
     .alias('g', 'govern').argv;
+}
+
+async function check() {
+  const { fork, govern, module, environment } = await getArgs();
   const config = getEnvironmentConfig(environment);
   const multiProvider = await config.getMultiProvider();
 
@@ -59,7 +64,10 @@ async function check() {
     const checker = new HyperlaneIgpChecker(multiProvider, igp, config.igp);
     governor = new HyperlaneIgpGovernor(checker, config.owners);
   } else if (module === Modules.INTERCHAIN_ACCOUNTS) {
-    const routerConfig = await getRouterConfig(environment, multiProvider);
+    const routerConfig = await getProxiedRouterConfig(
+      environment,
+      multiProvider,
+    );
     const ica = InterchainAccount.fromEnvironment(env, multiProvider);
     const checker = new InterchainAccountChecker(
       multiProvider,
@@ -68,7 +76,10 @@ async function check() {
     );
     governor = new ProxiedRouterGovernor(checker, config.owners);
   } else if (module === Modules.INTERCHAIN_QUERY_SYSTEM) {
-    const routerConfig = await getRouterConfig(environment, multiProvider);
+    const routerConfig = await getProxiedRouterConfig(
+      environment,
+      multiProvider,
+    );
     const iqs = InterchainQuery.fromEnvironment(env, multiProvider);
     const checker = new InterchainQueryChecker(
       multiProvider,
@@ -105,9 +116,11 @@ async function check() {
         'actual',
         'expected',
       ]);
-      throw new Error(
-        `Checking ${module} deploy yielded ${violations.length} violations`,
-      );
+      if (!fork) {
+        throw new Error(
+          `Checking ${module} deploy yielded ${violations.length} violations`,
+        );
+      }
     } else {
       console.info(`${module} Checker found no violations`);
     }

@@ -10,13 +10,20 @@ import {
   HyperlaneCore,
   HyperlaneIgp,
 } from '@hyperlane-xyz/sdk';
-import { debug, error, log, utils, warn } from '@hyperlane-xyz/utils';
+import {
+  debug,
+  error,
+  log,
+  retryAsync,
+  timeout,
+  warn,
+} from '@hyperlane-xyz/utils';
 
-import { KEY_ROLE_ENUM } from '../../src/agents/roles';
 import { deployEnvToSdkEnv } from '../../src/config/environment';
+import { Role } from '../../src/roles';
 import { startMetricsServer } from '../../src/utils/metrics';
 import { assertChain, diagonalize, sleep } from '../../src/utils/utils';
-import { getArgsWithContext, getEnvironmentConfig } from '../utils';
+import { getArgs, getEnvironmentConfig, withContext } from '../utils';
 
 import { getApp } from './utils';
 
@@ -64,7 +71,7 @@ const walletBalance = new Gauge({
 const MAX_MESSAGES_ALLOWED_TO_SEND = 5;
 
 function getKathyArgs() {
-  const args = getArgsWithContext()
+  return withContext(getArgs())
     .boolean('cycle-once')
     .describe(
       'cycle-once',
@@ -110,11 +117,8 @@ function getKathyArgs() {
       AgentConnectionType.HttpQuorum,
       AgentConnectionType.HttpFallback,
     ])
-    .demandOption('connection-type');
+    .demandOption('connection-type')
 
-  // Splitting these args from the rest of them because TypeScript otherwise
-  // complains that the "Type instantiation is excessively deep and possibly infinite."
-  return args
     .number('cycles-between-ethereum-messages')
     .describe(
       'cycles-between-ethereum-messages',
@@ -146,7 +150,7 @@ async function main(): Promise<boolean> {
   const app = await getApp(
     coreConfig,
     context,
-    KEY_ROLE_ENUM.Kathy,
+    Role.Kathy,
     undefined,
     connectionType,
   );
@@ -366,7 +370,7 @@ async function sendMessage(
   const msg = 'Hello!';
   const expectedHandleGas = BigNumber.from(50_000);
 
-  const value = await utils.retryAsync(
+  const value = await retryAsync(
     () =>
       igp.quoteGasPaymentForDefaultIsmIgp(
         origin,
@@ -383,9 +387,9 @@ async function sendMessage(
     interchainGasPayment: value.toString(),
   });
 
-  const receipt = await utils.retryAsync(
+  const receipt = await retryAsync(
     () =>
-      utils.timeout(
+      timeout(
         app.sendHelloWorld(origin, destination, msg, value),
         messageSendTimeout,
         'Timeout sending message',
@@ -404,7 +408,7 @@ async function sendMessage(
   });
 
   try {
-    await utils.timeout(
+    await timeout(
       app.waitForMessageProcessed(receipt),
       messageReceiptTimeout,
       'Timeout waiting for message to be received',
@@ -419,7 +423,7 @@ async function sendMessage(
     // Try a few times to see if the message has been processed --
     // we've seen some intermittent issues when fetching state.
     // This will throw if the message is found to have not been processed.
-    await utils.retryAsync(async () => {
+    await retryAsync(async () => {
       if (!(await messageIsProcessed(app.core, origin, destination, message))) {
         throw error;
       }

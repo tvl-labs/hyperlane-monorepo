@@ -15,8 +15,8 @@ serviceAccount:
 # -- External Secret Store type and name
 externalSecrets:
   # Available types: SecretStore, ClusterSecretStore
-  StoreType: ClusterSecretStore
-  StoreName:
+  storeType: ClusterSecretStore
+  storeName:
 
 podAnnotations: {}
 podCommonLabels: {}
@@ -42,7 +42,6 @@ hyperlane:
     format: json
     # Set the log level
     level: debug
-    uri: ''
   metrics:
     port: 9090
   aws: # true | false
@@ -79,17 +78,16 @@ hyperlane:
       requests:
         cpu: 100m
         memory: 256Mi
-    # -- Transaction Signing keys for home and replica(s)
-    signer: {}
     # -- How long to wait between checking for updates
-    configs:
-      - interval:
-        reorgPeriod:
-        checkpointSyncers:
-        originChainName:
+    configs: []
+      # - interval:
+      #   reorgPeriod:
+      #   checkpointSyncers:
+      #   originChainName:
 
   relayer:
     enabled: false
+    aws: # true | false
     podAnnotations:
       prometheus.io/port: '9090'
       prometheus.io/scrape: 'true'
@@ -101,12 +99,19 @@ hyperlane:
         name: ''
     resources:
       requests:
-        cpu: 250m
+        cpu: 500m
         memory: 256Mi
     config:
-      originChainName:
       multisigCheckpointSyncer:
         checkpointSyncers:
+    # -- Specify whether a default signer key is used for all chains in Values.hyperlane.relayerChains list.
+    # It affects chains whose signer type is hexKey.
+    usingDefaultSignerKey: true
+
+  relayerChains:
+    - name: 'alfajores'
+      signer:
+        type: # "aws"
 
   scraper:
     enabled: false

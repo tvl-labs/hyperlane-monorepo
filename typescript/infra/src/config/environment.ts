@@ -5,17 +5,18 @@ import {
   ChainMetadata,
   ChainName,
   CoreConfig,
+  HookConfig,
   MultiProvider,
   OverheadIgpConfig,
 } from '@hyperlane-xyz/sdk';
 import { HyperlaneEnvironment } from '@hyperlane-xyz/sdk/dist/consts/environments';
-import { types } from '@hyperlane-xyz/utils';
+import { Address } from '@hyperlane-xyz/utils';
 
 import { Contexts } from '../../config/contexts';
 import { environments } from '../../config/environments';
-import { KEY_ROLE_ENUM } from '../agents/roles';
+import { Role } from '../roles';
 
-import { AgentConfig } from './agent';
+import { RootAgentConfig } from './agent';
 import { KeyFunderConfig } from './funding';
 import { AllStorageGasOracleConfigs } from './gas-oracle';
 import { HelloWorldConfig } from './helloworld';
@@ -33,14 +34,15 @@ export type EnvironmentConfig = {
   environment: DeployEnvironment;
   chainMetadataConfigs: ChainMap<ChainMetadata>;
   // Each AgentConfig, keyed by the context
-  agents: Partial<Record<Contexts, AgentConfig>>;
+  agents: Partial<Record<Contexts, RootAgentConfig>>;
   core: ChainMap<CoreConfig>;
+  hooks: ChainMap<HookConfig>;
   igp: ChainMap<OverheadIgpConfig>;
-  owners: ChainMap<types.Address>;
+  owners: ChainMap<Address>;
   infra: InfrastructureConfig;
   getMultiProvider: (
     context?: Contexts,
-    role?: KEY_ROLE_ENUM,
+    role?: Role,
     connectionType?: AgentConnectionType,
   ) => Promise<MultiProvider>;
   helloWorld?: Partial<Record<Contexts, HelloWorldConfig>>;

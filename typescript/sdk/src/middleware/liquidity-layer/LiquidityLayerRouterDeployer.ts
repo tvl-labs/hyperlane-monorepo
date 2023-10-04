@@ -5,14 +5,16 @@ import {
   LiquidityLayerRouter,
   PortalAdapter,
 } from '@hyperlane-xyz/core';
-import { utils } from '@hyperlane-xyz/utils';
+import { Address, eqAddress, objFilter, objMap } from '@hyperlane-xyz/utils';
 
-import { HyperlaneContracts, HyperlaneContractsMap } from '../../contracts';
+import {
+  HyperlaneContracts,
+  HyperlaneContractsMap,
+} from '../../contracts/types';
 import { MultiProvider } from '../../providers/MultiProvider';
 import { ProxiedRouterDeployer } from '../../router/ProxiedRouterDeployer';
 import { RouterConfig } from '../../router/types';
 import { ChainMap, ChainName } from '../../types';
-import { objFilter, objMap } from '../../utils/objects';
 
 import { LiquidityLayerFactories, liquidityLayerFactories } from './contracts';
 
@@ -75,6 +77,9 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
     ]
   > {
     const owner = await this.multiProvider.getSignerAddress(chain);
+    if (typeof config.interchainSecurityModule === 'object') {
+      throw new Error('ISM as object unimplemented');
+    }
     return [
       config.mailbox,
       config.interchainGasPaymaster,
@@ -86,9 +91,10 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
   async enrollRemoteRouters(
     contractsMap: HyperlaneContractsMap<LiquidityLayerFactories>,
     configMap: ChainMap<LiquidityLayerConfig>,
+    foreignRouters: ChainMap<Address>,
   ): Promise<void> {
     this.logger(`Enroll LiquidityLayerRouters with each other`);
-    await super.enrollRemoteRouters(contractsMap, configMap);
+    await super.enrollRemoteRouters(contractsMap, configMap, foreignRouters);
 
     this.logger(`Enroll CircleBridgeAdapters with each other`);
     // Hack to allow use of super.enrollRemoteRouters
@@ -104,6 +110,7 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
         }),
       ) as unknown as HyperlaneContractsMap<LiquidityLayerFactories>,
       configMap,
+      foreignRouters,
     );
 
     this.logger(`Enroll PortalAdapters with each other`);
@@ -120,6 +127,7 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
         }),
       ) as unknown as HyperlaneContractsMap<LiquidityLayerFactories>,
       configMap,
+      foreignRouters,
     );
   }
 
@@ -199,7 +207,7 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
     }
 
     if (
-      !utils.eqAddress(
+      !eqAddress(
         await router.liquidityLayerAdapters('Portal'),
         portalAdapter.address,
       )
@@ -238,7 +246,7 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
     );
 
     if (
-      !utils.eqAddress(
+      !eqAddress(
         await circleBridgeAdapter.tokenSymbolToAddress('USDC'),
         adapterConfig.usdcAddress,
       )
@@ -274,7 +282,7 @@ export class LiquidityLayerDeployer extends ProxiedRouterDeployer<
     }
 
     if (
-      !utils.eqAddress(
+      !eqAddress(
         await router.liquidityLayerAdapters('Circle'),
         circleBridgeAdapter.address,
       )

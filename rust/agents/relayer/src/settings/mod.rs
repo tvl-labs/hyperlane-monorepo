@@ -1,15 +1,12 @@
 //! Configuration
 
-use std::collections::HashSet;
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use eyre::{eyre, Context};
+use hyperlane_base::{decl_settings, settings::Settings};
+use hyperlane_core::{cfg_unwrap_all, config::*, HyperlaneDomain, U256};
 use serde::Deserialize;
 use tracing::warn;
-
-use hyperlane_base::{decl_settings, Settings};
-use hyperlane_core::config::*;
-use hyperlane_core::{HyperlaneDomain, U256};
 
 use crate::settings::matching_list::MatchingList;
 
@@ -49,7 +46,7 @@ enum RawGasPaymentEnforcementPolicy {
     Unknown,
 }
 
-impl FromRawConf<'_, RawGasPaymentEnforcementPolicy> for GasPaymentEnforcementPolicy {
+impl FromRawConf<RawGasPaymentEnforcementPolicy> for GasPaymentEnforcementPolicy {
     fn from_config_filtered(
         raw: RawGasPaymentEnforcementPolicy,
         cwp: &ConfigPath,
@@ -110,7 +107,7 @@ struct RawGasPaymentEnforcementConf {
     matching_list: Option<MatchingList>,
 }
 
-impl FromRawConf<'_, RawGasPaymentEnforcementConf> for GasPaymentEnforcementConf {
+impl FromRawConf<RawGasPaymentEnforcementConf> for GasPaymentEnforcementConf {
     fn from_config_filtered(
         raw: RawGasPaymentEnforcementConf,
         cwp: &ConfigPath,
@@ -124,8 +121,7 @@ impl FromRawConf<'_, RawGasPaymentEnforcementConf> for GasPaymentEnforcementConf
             });
 
         let matching_list = raw.matching_list.unwrap_or_default();
-        err.into_result()?;
-        Ok(Self {
+        err.into_result(Self {
             policy: policy.unwrap(),
             matching_list,
         })
@@ -186,7 +182,7 @@ decl_settings!(Relayer,
     }
 );
 
-impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
+impl FromRawConf<RawRelayerSettings> for RelayerSettings {
     fn from_config_filtered(
         raw: RawRelayerSettings,
         cwp: &ConfigPath,
@@ -246,7 +242,7 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
             #[allow(deprecated)]
             raw.originchainname
         }
-        .map(|s| s.split(',').map(str::to_owned).collect::<Vec<_>>());
+        .map(parse_chains);
 
         if origin_chain_names.is_some() {
             warn!(
@@ -259,7 +255,7 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
             #[allow(deprecated)]
             raw.destinationchainnames
         }
-        .map(|r| r.split(',').map(str::to_owned).collect::<Vec<_>>());
+        .map(parse_chains);
 
         if destination_chain_names.is_some() {
             warn!(
@@ -268,10 +264,7 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
             );
         }
 
-        if let Some(relay_chain_names) = raw
-            .relaychains
-            .map(|r| r.split(',').map(str::to_owned).collect::<Vec<_>>())
-        {
+        if let Some(relay_chain_names) = raw.relaychains.map(parse_chains) {
             if origin_chain_names.is_some() {
                 err.push(
                     cwp + "originchainname",
@@ -362,7 +355,7 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
             .unwrap_or_default();
 
         if let Some(base) = &base {
-            for domain in destination_chains.iter() {
+            for domain in &destination_chains {
                 base.chain_setup(domain)
                     .unwrap()
                     .signer
@@ -372,9 +365,9 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
             }
         }
 
-        err.into_result()?;
-        Ok(Self {
-            base: base.unwrap(),
+        cfg_unwrap_all!(cwp, err: [base]);
+        err.into_result(Self {
+            base,
             db,
             origin_chains,
             destination_chains,
@@ -390,4 +383,8 @@ impl FromRawConf<'_, RawRelayerSettings> for RelayerSettings {
 
 fn default_gasfraction() -> String {
     "1/2".into()
+}
+
+fn parse_chains(chains_str: String) -> Vec<String> {
+    chains_str.split(',').map(str::to_ascii_lowercase).collect()
 }

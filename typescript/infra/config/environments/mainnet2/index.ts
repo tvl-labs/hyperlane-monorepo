@@ -1,8 +1,8 @@
 import { AgentConnectionType } from '@hyperlane-xyz/sdk';
 
 import { getMultiProviderForRole } from '../../../scripts/utils';
-import { KEY_ROLE_ENUM } from '../../../src/agents/roles';
 import { EnvironmentConfig } from '../../../src/config';
+import { Role } from '../../../src/roles';
 import { Contexts } from '../../contexts';
 
 import { agents } from './agent';
@@ -11,6 +11,7 @@ import { core } from './core';
 import { keyFunderConfig } from './funding';
 import { storageGasOracleConfig } from './gas-oracle';
 import { helloWorld } from './helloworld';
+import { hooks } from './hooks';
 import { igp } from './igp';
 import { infrastructure } from './infrastructure';
 import { bridgeAdapterConfigs, relayerConfig } from './liquidityLayer';
@@ -21,7 +22,7 @@ export const environment: EnvironmentConfig = {
   chainMetadataConfigs: mainnetConfigs,
   getMultiProvider: (
     context: Contexts = Contexts.Hyperlane,
-    role: KEY_ROLE_ENUM = KEY_ROLE_ENUM.Deployer,
+    role: Role = Role.Deployer,
     connectionType?: AgentConnectionType,
   ) =>
     getMultiProviderForRole(
@@ -37,6 +38,7 @@ export const environment: EnvironmentConfig = {
   igp,
   owners,
   infra: infrastructure,
+  hooks,
   helloWorld,
   keyFunderConfig,
   storageGasOracleConfig,

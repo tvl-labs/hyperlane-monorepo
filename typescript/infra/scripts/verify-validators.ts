@@ -1,16 +1,15 @@
-import { HyperlaneCore, objMap } from '@hyperlane-xyz/sdk';
+import { HyperlaneCore } from '@hyperlane-xyz/sdk';
+import { objMap } from '@hyperlane-xyz/utils';
 
 import { CheckpointStatus, S3Validator } from '../src/agents/aws/validator';
 import { deployEnvToSdkEnv } from '../src/config/environment';
 
-import {
-  getEnvironment,
-  getEnvironmentConfig,
-  getValidatorsByChain,
-} from './utils';
+import { getArgs, getEnvironmentConfig, getValidatorsByChain } from './utils';
 
 async function main() {
-  const environment = await getEnvironment();
+  const { environment, withMessageId } = await getArgs()
+    .boolean('with-message-id')
+    .default('with-message-id', true).argv;
   const config = getEnvironmentConfig(environment);
   const multiProvider = await config.getMultiProvider();
   const core = HyperlaneCore.fromEnvironment(
@@ -37,7 +36,10 @@ async function main() {
       const address = prospectiveValidator.address;
       const bucket = prospectiveValidator.s3Bucket.bucket;
       try {
-        const metrics = await prospectiveValidator.compare(controlValidator);
+        const metrics = await prospectiveValidator.compare(
+          controlValidator,
+          withMessageId,
+        );
         const valid =
           metrics.filter((metric) => metric.status !== CheckpointStatus.VALID)
             .length === 0;

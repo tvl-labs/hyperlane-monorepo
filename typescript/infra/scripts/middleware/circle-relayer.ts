@@ -2,21 +2,21 @@ import path from 'path';
 
 import {
   LiquidityLayerApp,
+  LiquidityLayerConfig,
   attachContractsMap,
   liquidityLayerFactories,
-  objFilter,
 } from '@hyperlane-xyz/sdk';
-import { LiquidityLayerConfig } from '@hyperlane-xyz/sdk/dist/middleware/liquidity-layer/LiquidityLayerRouterDeployer';
+import { objFilter } from '@hyperlane-xyz/utils';
 
 import { readJSON, sleep } from '../../src/utils/utils';
 import {
-  getEnvironment,
+  getArgs,
   getEnvironmentConfig,
   getEnvironmentDirectory,
 } from '../utils';
 
 async function check() {
-  const environment = await getEnvironment();
+  const { environment } = await getArgs().argv;
   const config = getEnvironmentConfig(environment);
 
   if (config.liquidityLayerConfig === undefined) {
