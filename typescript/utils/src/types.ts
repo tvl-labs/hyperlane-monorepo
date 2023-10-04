@@ -1,9 +1,24 @@
-import { ethers } from 'ethers';
+import type { ethers } from 'ethers';
+
+export enum ProtocolType {
+  Ethereum = 'ethereum',
+  Sealevel = 'sealevel',
+  Fuel = 'fuel',
+}
+// A type that also allows for literal values of the enum
+export type ProtocolTypeValue = `${ProtocolType}`;
+
+export const ProtocolSmallestUnit = {
+  [ProtocolType.Ethereum]: 'wei',
+  [ProtocolType.Sealevel]: 'lamports',
+};
 
 /********* BASIC TYPES *********/
 export type Domain = number;
 export type Address = string;
 export type AddressBytes32 = string;
+export type ChainCaip2Id = `${string}:${string}`; // e.g. ethereum:1 or solana:mainnet-beta
+export type TokenCaip19Id = `${string}:${string}/${string}:${string}`; // e.g. ethereum:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f
 export type HexString = string;
 
 // copied from node_modules/@ethersproject/bytes/src.ts/index.ts
@@ -27,6 +42,23 @@ export type MerkleProof = {
 export type Checkpoint = {
   root: string;
   index: number; // safe because 2 ** 32 leaves < Number.MAX_VALUE
+  mailbox_domain: Domain;
+  mailbox_address: Address;
+};
+
+/**
+ * Shape of a checkpoint in S3 as published by the agent.
+ */
+export type S3CheckpointWithId = {
+  value: {
+    checkpoint: Checkpoint;
+    message_id: HexString;
+  };
+  signature: SignatureLike;
+};
+
+export type S3Checkpoint = {
+  value: Checkpoint;
   signature: SignatureLike;
 };
 

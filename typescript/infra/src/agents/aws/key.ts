@@ -55,6 +55,10 @@ export class AgentAwsKey extends CloudAgentKey {
     this.region = agentConfig.aws.region;
   }
 
+  get privateKey(): string {
+    throw new Error('Private key unavailable for AWS keys');
+  }
+
   async getClient(): Promise<KMSClient> {
     if (this.client) {
       return this.client;
@@ -272,9 +276,9 @@ export class AgentAwsKey extends CloudAgentKey {
     }
 
     const command = new CreateKeyCommand({
-      Description: `${this.environment} ${this.chainName ?? 'omniscient'} ${
-        this.role
-      }`,
+      Description: `${this.context} ${this.environment} ${
+        this.chainName ?? 'omniscient'
+      } ${this.role}`,
       KeyUsage: KeyUsageType.SIGN_VERIFY,
       Origin: OriginType.AWS_KMS,
       BypassPolicyLockoutSafetyCheck: false,

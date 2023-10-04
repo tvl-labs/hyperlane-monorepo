@@ -1,19 +1,19 @@
 import { AgentConnectionType } from '@hyperlane-xyz/sdk';
 
 import { HelloWorldConfig } from '../../../src/config';
-import { HelloWorldKathyRunMode } from '../../../src/config/helloworld';
+import { HelloWorldKathyRunMode } from '../../../src/config/helloworld/types';
 import { Contexts } from '../../contexts';
 
 import { environment } from './chains';
 import hyperlaneAddresses from './helloworld/hyperlane/addresses.json';
 import rcAddresses from './helloworld/rc/addresses.json';
 
-export const hyperlane: HelloWorldConfig = {
+export const hyperlaneHelloworld: HelloWorldConfig = {
   addresses: hyperlaneAddresses,
   kathy: {
     docker: {
       repo: 'gcr.io/abacus-labs-dev/hyperlane-monorepo',
-      tag: '4c598b9-20230503-205323',
+      tag: '25da8e0-20231004-135818',
     },
     chainsToSkip: [],
     runEnv: environment,
@@ -28,12 +28,12 @@ export const hyperlane: HelloWorldConfig = {
   },
 };
 
-export const releaseCandidate: HelloWorldConfig = {
+export const releaseCandidateHelloworld: HelloWorldConfig = {
   addresses: rcAddresses,
   kathy: {
     docker: {
       repo: 'gcr.io/abacus-labs-dev/hyperlane-monorepo',
-      tag: '25f19b7-20230319-124624',
+      tag: '25da8e0-20231004-135818',
     },
     chainsToSkip: [],
     runEnv: environment,
@@ -48,6 +48,6 @@ export const releaseCandidate: HelloWorldConfig = {
 };
 
 export const helloWorld = {
-  [Contexts.Hyperlane]: hyperlane,
-  [Contexts.ReleaseCandidate]: releaseCandidate,
+  [Contexts.Hyperlane]: hyperlaneHelloworld,
+  [Contexts.ReleaseCandidate]: releaseCandidateHelloworld,
 };

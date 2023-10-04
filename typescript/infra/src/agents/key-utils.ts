@@ -1,4 +1,5 @@
-import { ChainName, ProtocolType, chainMetadata } from '@hyperlane-xyz/sdk';
+import { ChainName, chainMetadata } from '@hyperlane-xyz/sdk';
+import { ProtocolType } from '@hyperlane-xyz/utils';
 
 import { Contexts } from '../../config/contexts';
 import {
@@ -30,16 +31,33 @@ export function getRelayerCloudAgentKeys(
 
   const keys = [];
   keys.push(new AgentAwsKey(agentConfig, Role.Relayer));
-  let nonEthereumChains = agentConfig.contextChainNames.find(
-    (chainName) => chainMetadata[chainName].protocol !== ProtocolType.Ethereum,
-  );
+  const hasNonEthereumChains = !!agentConfig.contextChainNames[
+    Role.Relayer
+  ].find(isNotEthereumProtocolChain);
   // If there are any non-ethereum chains, we also want hex keys.
-  if (nonEthereumChains) {
+  if (hasNonEthereumChains) {
     keys.push(
       new AgentGCPKey(agentConfig.runEnv, agentConfig.context, Role.Relayer),
     );
   }
   return keys;
+}
+
+export function getKathyCloudAgentKeys(
+  agentConfig: AgentContextConfig,
+): Array<CloudAgentKey> {
+  const gcpKey = new AgentGCPKey(
+    agentConfig.runEnv,
+    agentConfig.context,
+    Role.Kathy,
+  );
+  if (!agentConfig.aws) {
+    return [gcpKey];
+  }
+
+  // Return both GCP and AWS keys for Kathy even if the agentConfig is configured
+  // to use AWS. Non-Ethereum chains require GCP keys.
+  return [gcpKey, new AgentAwsKey(agentConfig, Role.Kathy)];
 }
 
 // If getting all keys for relayers or validators, it's recommended to use
@@ -50,10 +68,19 @@ export function getCloudAgentKey(
   chainName?: ChainName,
   index?: number,
 ): CloudAgentKey {
-  // The deployer is always GCP-based
-  if (!!agentConfig.aws && role !== Role.Deployer) {
+  // Non-evm Kathy is always GCP-based but does not index by chain
+  if (
+    role === Role.Kathy &&
+    chainName &&
+    isNotEthereumProtocolChain(chainName)
+  ) {
+    return new AgentGCPKey(agentConfig.runEnv, agentConfig.context, role);
+  }
+  // Otherwise use an AWS key except for the deployer
+  else if (!!agentConfig.aws && role !== Role.Deployer) {
     return new AgentAwsKey(agentConfig, role, chainName, index);
   } else {
+    // Fallback to GCP
     return new AgentGCPKey(
       agentConfig.runEnv,
       agentConfig.context,
@@ -70,11 +97,13 @@ export function getValidatorCloudAgentKeys(
   // For each chainName, create validatorCount keys
   if (!agentConfig.validators) return [];
   const validators = agentConfig.validators;
-  return agentConfig.contextChainNames.flatMap((chainName) =>
-    validators.chains[chainName].validators.map((_, index) =>
-      getCloudAgentKey(agentConfig, Role.Validator, chainName, index),
-    ),
-  );
+  return agentConfig.contextChainNames[Role.Validator]
+    .filter((chainName) => !!validators.chains[chainName])
+    .flatMap((chainName) =>
+      validators.chains[chainName].validators.map((_, index) =>
+        getCloudAgentKey(agentConfig, Role.Validator, chainName, index),
+      ),
+    );
 }
 
 export function getAllCloudAgentKeys(
@@ -85,8 +114,12 @@ export function getAllCloudAgentKeys(
     keys.push(...getRelayerCloudAgentKeys(agentConfig));
   if ((agentConfig.rolesWithKeys ?? []).includes(Role.Validator))
     keys.push(...getValidatorCloudAgentKeys(agentConfig));
+  if ((agentConfig.rolesWithKeys ?? []).includes(Role.Kathy))
+    keys.push(...getKathyCloudAgentKeys(agentConfig));
+
   for (const role of agentConfig.rolesWithKeys) {
-    if (role == Role.Relayer || role == Role.Validator) continue;
+    if (role == Role.Relayer || role == Role.Validator || role == Role.Kathy)
+      continue;
     keys.push(getCloudAgentKey(agentConfig, role));
   }
   return keys;
@@ -199,4 +232,9 @@ function addressesIdentifier(
   context: Contexts,
 ) {
   return `${context}-${environment}-key-addresses`;
+}
+
+function isNotEthereumProtocolChain(chainName: ChainName) {
+  if (!chainMetadata[chainName]) throw new Error(`Unknown chain ${chainName}`);
+  return chainMetadata[chainName].protocol !== ProtocolType.Ethereum;
 }

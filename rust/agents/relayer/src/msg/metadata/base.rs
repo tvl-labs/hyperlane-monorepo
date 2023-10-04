@@ -1,28 +1,31 @@
-use std::str::FromStr;
-use std::sync::Arc;
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::HashMap, fmt::Debug, str::FromStr, sync::Arc};
 
 use async_trait::async_trait;
 use derive_new::new;
 use eyre::{Context, Result};
+use hyperlane_base::{
+    settings::{ChainConf, CheckpointSyncerConf},
+    CheckpointSyncer, CoreMetrics, MultisigCheckpointSyncer,
+};
+use hyperlane_core::{
+    accumulator::merkle::Proof, AggregationIsm, CcipReadIsm, Checkpoint, HyperlaneDomain,
+    HyperlaneMessage, InterchainSecurityModule, ModuleType, MultisigIsm, RoutingIsm,
+    ValidatorAnnounce, H160, H256,
+};
 use tokio::sync::RwLock;
 use tracing::{debug, info, instrument, warn};
 
-use hyperlane_base::{
-    ChainConf, CheckpointSyncer, CheckpointSyncerConf, CoreMetrics, MultisigCheckpointSyncer,
+use crate::{
+    merkle_tree_builder::MerkleTreeBuilder,
+    msg::metadata::{
+        multisig::{
+            LegacyMultisigMetadataBuilder, MerkleRootMultisigMetadataBuilder,
+            MessageIdMultisigMetadataBuilder,
+        },
+        AggregationIsmMetadataBuilder, CcipReadIsmMetadataBuilder, NullMetadataBuilder,
+        RoutingIsmMetadataBuilder,
+    },
 };
-use hyperlane_core::accumulator::merkle::Proof;
-use hyperlane_core::{
-    AggregationIsm, Checkpoint, HyperlaneDomain, HyperlaneMessage, InterchainSecurityModule,
-    ModuleType, MultisigIsm, RoutingIsm, ValidatorAnnounce, H160, H256,
-};
-
-use crate::merkle_tree_builder::MerkleTreeBuilder;
-use crate::msg::metadata::multisig::{
-    LegacyMultisigMetadataBuilder, MerkleRootMultisigMetadataBuilder,
-    MessageIdMultisigMetadataBuilder,
-};
-use crate::msg::metadata::{AggregationIsmMetadataBuilder, RoutingIsmMetadataBuilder};
 
 #[derive(Debug, thiserror::Error)]
 pub enum MetadataBuilderError {
@@ -71,9 +74,14 @@ impl MetadataBuilder for BaseMetadataBuilder {
         ism_address: H256,
         message: &HyperlaneMessage,
     ) -> Result<Option<Vec<u8>>> {
-        const CTX: &str = "When fetching module type";
-        let ism = self.build_ism(ism_address).await.context(CTX)?;
-        let module_type = ism.module_type().await.context(CTX)?;
+        let ism = self
+            .build_ism(ism_address)
+            .await
+            .context("When building ISM")?;
+        let module_type = ism
+            .module_type()
+            .await
+            .context("When fetching module type")?;
         let base = self.clone_with_incremented_depth()?;
 
         let metadata_builder: Box<dyn MetadataBuilder> = match module_type {
@@ -84,12 +92,14 @@ impl MetadataBuilder for BaseMetadataBuilder {
             ModuleType::MessageIdMultisig => Box::new(MessageIdMultisigMetadataBuilder::new(base)),
             ModuleType::Routing => Box::new(RoutingIsmMetadataBuilder::new(base)),
             ModuleType::Aggregation => Box::new(AggregationIsmMetadataBuilder::new(base)),
+            ModuleType::Null => Box::new(NullMetadataBuilder::new()),
+            ModuleType::CcipRead => Box::new(CcipReadIsmMetadataBuilder::new(base)),
             _ => return Err(MetadataBuilderError::UnsupportedModuleType(module_type).into()),
         };
         metadata_builder
             .build(ism_address, message)
             .await
-            .context(CTX)
+            .context("When building metadata")
     }
 }
 
@@ -159,6 +169,12 @@ impl BaseMetadataBuilder {
             .await
     }
 
+    pub async fn build_ccip_read_ism(&self, address: H256) -> Result<Box<dyn CcipReadIsm>> {
+        self.destination_chain_setup
+            .build_ccip_read_ism(address, &self.metrics)
+            .await
+    }
+
     pub async fn build_checkpoint_syncer(
         &self,
         validators: &[H256],
@@ -173,8 +189,12 @@ impl BaseMetadataBuilder {
         for (&validator, validator_storage_locations) in validators.iter().zip(storage_locations) {
             for storage_location in validator_storage_locations.iter().rev() {
                 let Ok(config) = CheckpointSyncerConf::from_str(storage_location) else {
-                    debug!(?validator, ?storage_location, "Could not parse checkpoint syncer config for validator");
-                    continue
+                    debug!(
+                        ?validator,
+                        ?storage_location,
+                        "Could not parse checkpoint syncer config for validator"
+                    );
+                    continue;
                 };
 
                 // If this is a LocalStorage based checkpoint syncer and it's not

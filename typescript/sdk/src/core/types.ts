@@ -1,22 +1,22 @@
-import { Mailbox } from '@hyperlane-xyz/core';
-import type { types } from '@hyperlane-xyz/utils';
+import type { Mailbox } from '@hyperlane-xyz/core';
+import type { Address, ParsedMessage } from '@hyperlane-xyz/utils';
 
+import type { UpgradeConfig } from '../deploy/proxy';
 import type { CheckerViolation } from '../deploy/types';
-import { IsmConfig } from '../ism/types';
-import { ChainName } from '../types';
+import type { IsmConfig } from '../ism/types';
+import type { ChainName } from '../types';
 
 export type CoreConfig = {
   defaultIsm: IsmConfig;
-  owner: types.Address;
-  upgradeTimelockDelay?: number;
+  owner: Address;
   remove?: boolean;
+  upgrade?: UpgradeConfig;
 };
 
 export enum CoreViolationType {
   Mailbox = 'Mailbox',
   ConnectionManager = 'ConnectionManager',
   ValidatorAnnounce = 'ValidatorAnnounce',
-  TimelockController = 'TimelockController',
 }
 
 export enum MailboxViolationType {
@@ -25,19 +25,25 @@ export enum MailboxViolationType {
 
 export interface MailboxViolation extends CheckerViolation {
   type: CoreViolationType.Mailbox;
+  subType: MailboxViolationType;
   contract: Mailbox;
-  mailboxType: MailboxViolationType;
 }
 
 export interface MailboxMultisigIsmViolation extends MailboxViolation {
-  actual: types.Address;
+  actual: Address;
   expected: IsmConfig;
 }
 
 export interface ValidatorAnnounceViolation extends CheckerViolation {
   type: CoreViolationType.ValidatorAnnounce;
   chain: ChainName;
-  validator: types.Address;
+  validator: Address;
   actual: boolean;
   expected: boolean;
 }
+
+export type DispatchedMessage = {
+  id: string;
+  message: string;
+  parsed: ParsedMessage;
+};

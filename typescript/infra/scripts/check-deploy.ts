@@ -1,39 +1,47 @@
+import { HelloWorldChecker } from '@hyperlane-xyz/helloworld';
 import {
   HyperlaneCore,
   HyperlaneCoreChecker,
   HyperlaneIgp,
   HyperlaneIgpChecker,
+  HyperlaneIsmFactory,
   InterchainAccount,
   InterchainAccountChecker,
   InterchainQuery,
   InterchainQueryChecker,
+  filterChainMapToProtocol,
 } from '@hyperlane-xyz/sdk';
-import { HyperlaneIsmFactory } from '@hyperlane-xyz/sdk/dist/ism/HyperlaneIsmFactory';
+import { ProtocolType } from '@hyperlane-xyz/utils';
 
+import { Contexts } from '../config/contexts';
 import { deployEnvToSdkEnv } from '../src/config/environment';
+import { helloWorldRouterConfig } from '../src/config/helloworld/config';
 import { HyperlaneAppGovernor } from '../src/govern/HyperlaneAppGovernor';
 import { HyperlaneCoreGovernor } from '../src/govern/HyperlaneCoreGovernor';
 import { HyperlaneIgpGovernor } from '../src/govern/HyperlaneIgpGovernor';
 import { ProxiedRouterGovernor } from '../src/govern/ProxiedRouterGovernor';
+import { Role } from '../src/roles';
 import { impersonateAccount, useLocalProvider } from '../src/utils/fork';
 
+import { getHelloWorldApp } from './helloworld/utils';
 import {
   Modules,
   getEnvironmentConfig,
+  getProxiedRouterConfig,
   getArgs as getRootArgs,
-  getRouterConfig,
+  withContext,
   withModuleAndFork,
 } from './utils';
 
 function getArgs() {
-  return withModuleAndFork(getRootArgs())
+  return withModuleAndFork(withContext(getRootArgs()))
     .boolean('govern')
     .default('govern', false)
     .alias('g', 'govern').argv;
 }
 
 async function check() {
-  const { fork, govern, module, environment } = await getArgs();
+  const { fork, govern, module, environment, context } = await getArgs();
   const config = getEnvironmentConfig(environment);
   const multiProvider = await config.getMultiProvider();
 
@@ -64,7 +72,11 @@ async function check() {
     const checker = new HyperlaneIgpChecker(multiProvider, igp, config.igp);
     governor = new HyperlaneIgpGovernor(checker, config.owners);
   } else if (module === Modules.INTERCHAIN_ACCOUNTS) {
-    const routerConfig = await getRouterConfig(environment, multiProvider);
+    const routerConfig = filterChainMapToProtocol(
+      await getProxiedRouterConfig(environment, multiProvider),
+      ProtocolType.Ethereum,
+      multiProvider,
+    );
     const ica = InterchainAccount.fromEnvironment(env, multiProvider);
     const checker = new InterchainAccountChecker(
       multiProvider,
@@ -73,12 +85,38 @@ async function check() {
     );
     governor = new ProxiedRouterGovernor(checker, config.owners);
   } else if (module === Modules.INTERCHAIN_QUERY_SYSTEM) {
-    const routerConfig = await getRouterConfig(environment, multiProvider);
+    const routerConfig = await getProxiedRouterConfig(
+      environment,
+      multiProvider,
+    );
     const iqs = InterchainQuery.fromEnvironment(env, multiProvider);
     const checker = new InterchainQueryChecker(
       multiProvider,
       iqs,
       routerConfig,
+    );
+    governor = new ProxiedRouterGovernor(checker, config.owners);
+  } else if (module === Modules.HELLO_WORLD) {
+    const app = await getHelloWorldApp(
+      config,
+      context,
+      Role.Deployer,
+      Contexts.Hyperlane, // Owner should always be from the hyperlane context
+    );
+    const hwConfig = await helloWorldRouterConfig(
+      environment,
+      context,
+      multiProvider,
+    );
+    const ismFactory = HyperlaneIsmFactory.fromEnvironment(
+      deployEnvToSdkEnv[environment],
+      multiProvider,
+    );
+    const checker = new HelloWorldChecker(
+      multiProvider,
+      app,
+      hwConfig,
+      ismFactory,
     );
     governor = new ProxiedRouterGovernor(checker, config.owners);
   } else {
@@ -110,9 +148,11 @@ async function check() {
         'actual',
         'expected',
       ]);
-      throw new Error(
-        `Checking ${module} deploy yielded ${violations.length} violations`,
-      );
+      if (!fork) {
+        throw new Error(
+          `Checking ${module} deploy yielded ${violations.length} violations`,
+        );
+      }
     } else {
       console.info(`${module} Checker found no violations`);
     }

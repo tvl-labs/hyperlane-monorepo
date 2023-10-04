@@ -25,7 +25,9 @@ export enum Chains {
   test2 = 'test2',
   test3 = 'test3',
   solanadevnet = 'solanadevnet',
-  zbctestnet = 'zbctestnet',
+  proteustestnet = 'proteustestnet',
+  solana = 'solana',
+  nautilus = 'nautilus',
 }
 
 export type CoreChainName = keyof typeof Chains;
@@ -51,6 +53,7 @@ export const Mainnets: Array<CoreChainName> = [
   Chains.optimism,
   Chains.polygon,
   Chains.gnosis,
+  Chains.solana,
 ];
 
 export const Testnets: Array<CoreChainName> = [
@@ -63,6 +66,7 @@ export const Testnets: Array<CoreChainName> = [
   Chains.mumbai,
   Chains.optimismgoerli,
   Chains.sepolia,
+  Chains.solanadevnet,
 ];
 
 export const TestChains: Array<CoreChainName> = [
