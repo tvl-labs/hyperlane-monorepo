@@ -36,8 +36,7 @@ const BaseChainConfigSchema = z.object({
   bridgeLockTime: z
     .number()
     .positive()
-    .transform((val) => val * 1_000)
-    .describe('Expected time in seconds for bridge to process a transfer'),
+    .describe('Expected time in milliseconds for bridge to process a transfer'),
   bridgeIsWarp: z
     .boolean()
     .optional()
@@ -102,23 +101,6 @@ const ConfigSchema = BaseConfigSchema.catchall(ChainConfigSchema).superRefine(
           }
         }
       }
-    }
-
-    const minAmountChainsTypes: MinAmountType[] = [];
-    for (const chainName of chainNames) {
-      const chain = config[chainName];
-
-      if (chain.minAmount) {
-        minAmountChainsTypes.push(chain.minAmount.type);
-      }
-    }
-
-    if (minAmountChainsTypes.length && new Set(minAmountChainsTypes).size > 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `All chains must use the same minAmount type.`,
-        path: ['minAmount', 'type'],
-      });
     }
   },
 );

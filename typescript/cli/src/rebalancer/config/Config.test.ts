@@ -69,7 +69,7 @@ describe('Config', () => {
             tolerance: 0n,
           },
           bridge: ethers.constants.AddressZero,
-          bridgeLockTime: 1_000,
+          bridgeLockTime: 1,
         },
         chain2: {
           weighted: {
@@ -77,7 +77,7 @@ describe('Config', () => {
             tolerance: 0n,
           },
           bridge: ethers.constants.AddressZero,
-          bridgeLockTime: 1_000,
+          bridgeLockTime: 1,
         },
       },
     });
@@ -167,7 +167,7 @@ describe('Config', () => {
             tolerance: 0n,
           },
           bridge: ethers.constants.AddressZero,
-          bridgeLockTime: 1_000,
+          bridgeLockTime: 1,
         },
         chain2: {
           weighted: {
@@ -175,7 +175,7 @@ describe('Config', () => {
             tolerance: 0n,
           },
           bridge: ethers.constants.AddressZero,
-          bridgeLockTime: 1_000,
+          bridgeLockTime: 1,
         },
       },
     });
@@ -200,7 +200,6 @@ describe('Config', () => {
       Config.load(REBALANCER_CONFIG_PATH, ANVIL_KEY, {}).chains.chain1,
     ).to.deep.equal({
       ...data.chain1,
-      bridgeLockTime: 1_000,
       minAmount: {
         min: '0.2',
         target: 0.3,
@@ -228,7 +227,6 @@ describe('Config', () => {
       Config.load(REBALANCER_CONFIG_PATH, ANVIL_KEY, {}).chains.chain1,
     ).to.deep.equal({
       ...data.chain1,
-      bridgeLockTime: 1_000,
       minAmount: {
         min: '100000',
         target: 140000,
